@@ -2,8 +2,8 @@
 #echo "the mamas and the papas"
 
 #i3
-cat "$HOME/.config/i3/config" > "$HOME/Documents/Corsola/Config/myi3Config/config"
-cat "$HOME/i3shit/i3status.conf" > "$HOME/Documents/Corsola/Config/myi3Config/i3status.conf"
+cat "$HOME/Documents/Corsola/Config/myi3Config/config" > "$HOME/.config/i3/config"
+cat "$HOME/Documents/Corsola/Config/myi3Config/i3status.conf" > "$HOME/i3shit/i3status.conf"
 
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
