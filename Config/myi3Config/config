@@ -147,7 +147,7 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
 # background
-exec_always feh --bg-scale ~/Pictures/gnome.jpeg
+exec_always feh --bg-scale ~/Pictures/teamRocket.png
 
 # internet F F S
 exec --no-startup-id nm-applet
@@ -181,7 +181,7 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
-        status_command i3status --config ~/i3shit/i3status.conf
+        status_command i3status --config ~/Documents/Corsola/Config/myi3Config/i3status.conf
         tray_output primary
 }
 
