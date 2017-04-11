@@ -124,7 +124,7 @@ alias c='clear'
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
 alias corsola='cd ~/Documents/Corsola/'
 alias settings='corsola && cd Config'
-alias editbash='settings && vim myBashrc.sh'
+alias editbash='settings && vim mybashrc.sh'
 alias editi3='settings && vim myi3Config/config'
 alias editi3bar='settings && vim myi3Config/i3status.conf'
 
