@@ -130,6 +130,7 @@ alias editi3bar='settings && vim myi3Config/i3status.conf'
 
 # variant aliases (TODO)
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
+alias cnow='cd $(ls -td -- ~/Documents/Corsola/*/ | head -n 1)'
 alias work='cd ~/Documents'
 alias spec='cd $(ls -td -- ~/Documents/*/ | head -n 1) && evince $(ls -t spec* | head -n 1) &'
 alias haskell='cd $(ls -td -- ~/Documents/Corsola/Haskell/*/ | head -n 1)'
