@@ -1,4 +1,8 @@
 what ive learned from this challenge
+GETTING BACK INTO HASKELL AFTER A HIATUS: do some practice...
+
+
+
 
 
   GENERAL: always think of the minimum amount of information 
@@ -8,9 +12,10 @@ what ive learned from this challenge
 
 
 
+
 -- <$> is essentially zipWith $
   -- it just applies a function to something with a monadic wrapper
-  -- so reverse <$> 'IO' "hello" gives 'IO' "olleh"
+  -- so (e.g.): reverse <$> 'IO' "hello" gives 'IO' "olleh"
   -- (the return monad type is the same as the second arguments)
 
 -- interact is fucking magical
@@ -20,6 +25,7 @@ what ive learned from this challenge
 -- (>>=) is 'strip' (of the monadic protective layer)
   -- Just 64 >>= half >>= half >>= half
   -- strips Just 64 of the Just and puts it into the next function
+  -- (NOTE: you get the monadic protective layer back)
 
 -- (>>) is strip of ()
   -- 'IO' () >> someFunc
@@ -37,9 +43,10 @@ what ive learned from this challenge
 
 -- getContents takes the entire input lines n'all
   -- use lines <$> getContents to make a list of all the lines inputted
-  -- NOTE: lines <$> getContents :: IO [String]
+  -- (NOTE: lines <$> getContents :: IO [String])
 
--- you DONT need to start a do statement if you only have one line (of, for example, IO)
+-- you DONT need to start a do statement if you only have one line 
+  -- (of, for example, IO)
 
 -- if you're about to use an accumulating parameter with a helper function that produces lists, you can do without it
   -- instead of:
