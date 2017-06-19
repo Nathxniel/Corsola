@@ -1,12 +1,10 @@
-import System.IO (readFile, writeFile)
-import System.Environment (getArgs)
-import Control.Monad
-import Control.Applicative 
-import Data.Char
-import Data.List
-import qualified Data.Set as S
+module HParser.Parse2
+  ( parse2
+  , Block
+  , Statement) where
 
-type Parser    = [String] -> [String]
+import Data.List
+
 type Block     = [Statement]
 data Statement = Fstat (String, String) -- function (lhs, rhs)
                | FLine String           -- line within a function
@@ -18,45 +16,6 @@ data Statement = Fstat (String, String) -- function (lhs, rhs)
                | Pattern (Block, Block) -- (body, where clause)  
                deriving (Show)
 
--- File IO version main
-main :: IO ()
-main = do
-  [readfile, writefile] <- getArgs
-  ls <- lines <$> readFile readfile
-  (writeFile writefile) . unlines . parse $ ls
-
-{- Utility function:
- -
- - Maps a function over a list adding an element inbetween
- -}
-intersperseMap :: String -> (String -> [String]) -> Parser
-intersperseMap d f
-  = foldr (\x acc -> (f x) ++ (d:acc)) []
-
-{- The Parser
- -
- - Converts lines into readable format
- - Identifies comments and functions
- - Converts
- -}
-parse :: Parser
-parse ls
-  = parse3 . parse2 . parse1 $ ls
-
-{- Converts lines into readable format
- -
- -
- -}
-parse1 :: Parser
-parse1 
-  = intersperseMap "\n" words
-
-{- Identifies:
- -
- - Comments
- - Function lines
- - Module and import statements
- -}
 parse2 :: [String] -> Block
 parse2 tks = 
   case tks of
@@ -68,8 +27,6 @@ parse2 tks =
     ("import"):r  -> (fst $ parseImprtStat r)  : (parse2.snd.parseImprtStat $ r)
     ("module"):r  -> (fst $ parseMdleStat r)   : (parse2.snd.parseMdleStat $ r)
     (t:r)         -> (fst $ parseFunc (t:r))   : (parse2.snd.parseFunc $ (t:r))
-
-parse3 = undefined
 
 parseSLineC :: [String] -> (Statement, [String])
 parseSLineC tks
@@ -106,34 +63,3 @@ parseMdleStat tks
 parseFunc :: [String] -> (Statement, [String])
 parseFunc tks
   = parseMultiline tks [] FLine
-
-{-
- -
- -
-parseFunc (tk:f:tks)
-  = (Func (fn, wr), rest)
-  where
-    (fn, wr) = pf [] [] tk
-    pf f w name
-      | f == "::" = pf (FuncDef (
-      | 
-    
-    -- fll is func lhs
-    -- flr is func lhs
-    -- rest is rest of the stuff
-    (fll, flr) = (unwords lhs, unwords rhs)
-    (rhs, next) = break (=="where") r
-    (lhs, r) = break (=="=") tks
-
-
-parseFunc tks
-  = pf tks [] [] tk
-
-pf a@(tk:"::":tks) fn wr _
-  = pf rest ((FuncDef func):fn) wr tk
-  where
-    (func, rest)
--
--
--}
-
