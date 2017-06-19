@@ -13,6 +13,7 @@ data Statement = Fstat (String, String) -- function (lhs, rhs)
                | MLineC String          -- multiline comments
                | MdleStat String        -- module statements
                | ImprtStat String       -- import statements
+               | TypeStat String        -- type or data statements
                | Pattern (Block, Block) -- (body, where clause)  
                deriving (Show)
 
@@ -26,6 +27,7 @@ parse2 tks =
     ('{':'-':t):r -> (fst $ parseMLineC (t:r)) : (parse2.snd.parseMLineC $ (t:r))
     ("import"):r  -> (fst $ parseImprtStat r)  : (parse2.snd.parseImprtStat $ r)
     ("module"):r  -> (fst $ parseMdleStat r)   : (parse2.snd.parseMdleStat $ r)
+    ("type"):r    -> (fst $ parseTypeStat r)   : (parse2.snd.parseTypeStat $ r)
     (t:r)         -> (fst $ parseFunc (t:r))   : (parse2.snd.parseFunc $ (t:r))
 
 parseSLineC :: [String] -> (Statement, [String])
@@ -40,7 +42,6 @@ parseMLineC tks
   where
     (mline, rest) = break (=="-}") tks 
 
--- helper :/
 parseMultiline :: [String] -> [String] 
                    -> (String -> Statement) -> (Statement, [String])
 parseMultiline tks acc typ =
@@ -50,6 +51,7 @@ parseMultiline tks acc typ =
     ('{':'-':_):_ -> (typ (unwords acc), tks)
     ("import"):_  -> (typ (unwords acc), tks)
     ("module"):_  -> (typ (unwords acc), tks)
+    ("type"):_    -> (typ (unwords acc), tks)
     (t:ts)        -> parseMultiline ts (acc ++ [t]) typ
 
 parseImprtStat :: [String] -> (Statement, [String])
@@ -63,3 +65,7 @@ parseMdleStat tks
 parseFunc :: [String] -> (Statement, [String])
 parseFunc tks
   = parseMultiline tks [] FLine
+
+parseTypeStat :: [String] -> (Statement, [String])
+parseTypeStat tks
+  = parseMultiline tks [] TypeStat

@@ -23,7 +23,7 @@ main :: IO ()
 main = do
   [readfile, writefile] <- getArgs
   ls <- lines <$> readFile readfile
-  (writeFile writefile) . unlines . parse $ ls
+  (writeFile writefile) .  (foldr (\x acc -> (show x) ++ ('\n':acc)) "um") . parse2 . parse1 $ ls 
 
 {- Utility function:
  -
@@ -106,34 +106,3 @@ parseMdleStat tks
 parseFunc :: [String] -> (Statement, [String])
 parseFunc tks
   = parseMultiline tks [] FLine
-
-{-
- -
- -
-parseFunc (tk:f:tks)
-  = (Func (fn, wr), rest)
-  where
-    (fn, wr) = pf [] [] tk
-    pf f w name
-      | f == "::" = pf (FuncDef (
-      | 
-    
-    -- fll is func lhs
-    -- flr is func lhs
-    -- rest is rest of the stuff
-    (fll, flr) = (unwords lhs, unwords rhs)
-    (rhs, next) = break (=="where") r
-    (lhs, r) = break (=="=") tks
-
-
-parseFunc tks
-  = pf tks [] [] tk
-
-pf a@(tk:"::":tks) fn wr _
-  = pf rest ((FuncDef func):fn) wr tk
-  where
-    (func, rest)
--
--
--}
-
