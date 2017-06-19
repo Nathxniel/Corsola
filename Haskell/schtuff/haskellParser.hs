@@ -3,140 +3,104 @@ import System.Environment (getArgs)
 import Control.Monad
 import Control.Applicative 
 import Data.Char
+import Data.List
+import qualified Data.Set as S
 
-type Parser = [String] -> [String]
+type Parser    = [String] -> [String]
+type Block     = [Statement]
+data Statement = Fstat (String, String)
+               | FuncDef String         
+               | SLineC String          
+               | MLineC String          
+               | MdleStat String        
+               | ImprtStat String       
+               | Pattern (Block, Block) 
+               deriving (Show)
+
+-- function statements (lhs, rhs)
+-- function definitions
+-- single line comments
+-- multiline comments
+-- module statements
+-- import statements
+-- pattern: (body, where clause)
 
 -- File IO version main
-main :: IO ()
-main = do
-  -- get read and write location from program arguments
-  [readfile, writefile] <- getArgs
-  -- remove extraneous spaces
-  ls <- map (unwords . words) . lines <$> readFile readfile
-  -- write output to file
-  writeFile writefile (unlines . parse $ ls)
-
--- Terminal version main
 --main :: IO ()
 --main = do
---  ls <- lines <$> getContents
---  putStrLn . unlines . parse $ ls
+--  [readfile, writefile] <- getArgs
+--  ls <- map (unwords . words) . lines <$> readFile readfile
+--  writeFile writefile (unlines . parse $ ls)
 
-{- the parser -}
+-- Terminal version main
+main :: IO ()
+main = do
+  ls <- lines <$> getContents
+  putStrLn . unlines . parse $ ls
+
+intersperseMap :: String -> (String -> [String]) -> Parser
+intersperseMap d f
+  = foldr (\x acc -> (words x) ++ (d:acc)) []
 
 parse :: Parser
--- parsing single-line comments
-parse (('-':'-':s):ss)
-  = ('-':'-':' ':s) : parse ss
-parse (('{':'-':s):ss)
-  = comment (s:ss)
+parse ls
+  = parse2 . parse1 . (intersperseMap "\n" words) $ ls
 
---empty lines and spaces
-parse ("":ss)
-  = parse ss
-parse a@((' ':_):_)
-  = space a 
+parse2 = undefined
 
---function definitions
-parse (s:ss)
-  | isFuncDef s = s : processFunction ss
-  | otherwise   = parse ss
-parse []
-  = []
+parse1 :: [String] -> Block
+parse1 [] = []
 
---  helper functions for specific parses
+parse1 ("\n":tks)
+  = parse1 tks
+parse1 ("-}":tks)
+  = parse1 tks
 
-
--- strip spaces
-strip :: String -> String
-strip []
-  = []
-strip (' ':cs)
-  = strip cs
-strip (c:cs)
-  = c : strip cs
-
--- multi-line comments
-comment :: Parser
-comment ([]:ss)
-  = comment ss
-comment (("-}"):ss)
-  = parse ss
-comment (('-':'}':s):ss)
-  = ('-':'-':' ':s) : parse ss
-comment (s:ss)
-  | ended     = rest : parse (after:ss)
-  | otherwise = ('-':'-':' ':s) : comment ss
+parse1 (('-':'-':tk):tks)
+  = slinec : parse1 rest
   where
-    isCommentEnd ('-':'}':xs) before
-      = (True, ('-':'-':' ':(reverse before)), xs)
-    isCommentEnd (x:xs) before
-      = (e || False, b, a)
-      where
-        (e, b, a) = isCommentEnd xs (x:before)
-    isCommentEnd [] before
-      = (False, before, [])
-    (ended, rest, after) = isCommentEnd s []
+    (slinec, rest)
+      = parseSLineC (tk:tks)
+parse1 (('{':'-':tk):tks)
+  = mlinec : parse1 rest
+  where
+    (mlinec, rest)
+      = parseMLineC (tk:tks)
+parse1 ("import":tks)
+  = imprtstat : parse1 rest
+  where
+    (imprtstat, rest)
+      = parseImprtStat tks
+parse1 ("module":tks)
+  = mdlestat : parse1 rest
+  where
+    (mdlestat, rest)
+      = parseMdleStat tks
+parse1 (tk:tks)
+  = funcstat : parse1 rest
+  where
+    (funcstat, rest)
+      = parseFunc (tk:tks)
 
+parseSLineC :: [String] -> (Statement, [String])
+parseSLineC tks
+  = (SLineC (unwords $ sline), rest)
+  where
+    (sline, rest) = break (=="\n") tks 
 
+parseMLineC :: [String] -> (Statement, [String])
+parseMLineC tks
+  = (MLineC (unwords mline), rest)
+  where
+    (mline, rest) = break (=="-}") tks 
 
--- comment ((x:xs):ss)
---   = comment (xs:ss)
--- comment ([]:ss)
---   = comment ss
-  
--- empty space
-space :: Parser
-space ((' ':s):ss)
-  = parse (s:ss)
+parseImprtStat = undefined
 
-processFunction :: Parser
-processFunction ss
-  = pfunc ss []
+parseMdleStat = undefined
 
-pfunc [] _
-  = []
-pfunc ([]:[]:prgm) function
-  = pfunc prgm function
-pfunc (('-':'-':s):ss) function
-  = ('-':'-':' ':s) : pfunc ss function
-pfunc (('{':'-':s):ss) _
-  = comment (s:ss)
-pfunc [p] function
-  = (processWhere (reverse function)) ++ (parse [p])
-pfunc (p:q:prgm) function
-  | isFuncDef q = (processWhere (reverse (p:function))) ++ (parse prgm)
-  | otherwise   = pfunc prgm (q:p:function)
-
-processWhere ("":func)
-  = processWhere func
-processWhere func
-  | hasWhere func = pwhere func []
-  | otherwise     = func
-
-hasWhere []
-  = False
-hasWhere (f:func)
-  | strip f == "where" = True
-  | otherwise          = hasWhere func
-
-pwhere func []
-  = "YO":func
-
--- pwhere (f:func) fn
---   | strip f == "where" = mend (reverse fn) (makeWhereMap func)
---   | otherwise          = pwhere func (f:fn)
-
---mend function wheremap
---  = concatMap (\f -> concat . (replace wheremap) $ (words f)) function
---  where
---    replace wheremap tokens
-
--- function definitions
-isFuncDef :: String -> Bool
-isFuncDef (':':':':_)
-  = True
-isFuncDef (x:xs)
-  = isFuncDef xs
-isFuncDef []
-  = False
+parseFunc :: [String] -> (Statement, [String])
+parseFunc tks
+  = pf tks [] []
+  where
+    pf (tk:tks) [] []
+      = undefined
