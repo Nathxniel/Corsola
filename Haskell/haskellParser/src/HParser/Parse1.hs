@@ -1,5 +1,6 @@
 module HParser.Parse1
   ( parse1 
+  , intersperseMap
   , Parser
   ) where
 

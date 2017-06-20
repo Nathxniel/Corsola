@@ -5,37 +5,37 @@ ImprtStat "Control.Applicative \n"
 ImprtStat "Data.Char \n \n"
 TypeStat "Parser = [String] -> [String] \n \n"
 SLineC " File IO version main"
-FLine "main :: IO () \n main = do \n"
+Func ([Fstat ("main :: IO () main","= do")],[])
 SLineC " get read and write location from program arguments"
-FLine "[readfile, writefile] <- getArgs \n"
+Func ([Fstat ("[readfile, writefile] <- getArgs","")],[])
 SLineC " remove extraneous spaces"
-FLine "ls <- map (unwords . words) . lines <$> readFile readfile \n"
+Func ([Fstat ("ls <- map (unwords . words) . lines <$> readFile readfile","")],[])
 SLineC " write output to file"
-FLine "writeFile writefile (unlines . parse $ ls) \n \n"
+Func ([Fstat ("writeFile writefile (unlines . parse $ ls)","")],[])
 SLineC " Terminal version main"
 SLineC "main :: IO ()"
 SLineC "main = do"
 SLineC " ls <- lines <$> getContents"
 SLineC " putStrLn . unlines . parse $ ls"
 MLineC " the parser"
-FLine "parse :: Parser \n"
+Func ([Fstat ("parse :: Parser","")],[])
 SLineC " parsing single-line comments"
-FLine "parse (('-':'-':s):ss) \n = ('-':'-':' ':s) : parse ss \n parse (('{':'-':s):ss) \n = comment (s:ss) \n \n"
+Func ([Fstat ("parse (('-':'-':s):ss)","= ('-':'-':' ':s) : parse ss parse (('{':'-':s):ss) = comment (s:ss)")],[])
 SLineC "empty lines and spaces"
-FLine "parse (\"\":ss) \n = parse ss \n parse a@((' ':_):_) \n = space a \n \n"
+Func ([Fstat ("parse (\"\":ss)","= parse ss parse a@((' ':_):_) = space a")],[])
 SLineC "function definitions"
-FLine "parse (s:ss) \n | isFuncDef s = s : processFunction ss \n | otherwise = parse ss \n parse [] \n = [] \n \n"
+Func ([Fstat ("parse (s:ss) | isFuncDef s","= s : processFunction ss | otherwise = parse ss parse [] = []")],[])
 SLineC " helper functions for specific parses"
 SLineC " strip spaces"
-FLine "strip :: String -> String \n strip [] \n = [] \n strip (' ':cs) \n = strip cs \n strip (c:cs) \n = c : strip cs \n \n"
+Func ([Fstat ("strip :: String -> String strip []","= [] strip (' ':cs) = strip cs strip (c:cs) = c : strip cs")],[])
 SLineC " multi-line comments"
-FLine "comment :: Parser \n comment ([]:ss) \n = comment ss \n comment ((\"-}\"):ss) \n = parse ss \n comment (('-':'}':s):ss) \n = ('-':'-':' ':s) : parse ss \n comment (s:ss) \n | ended = rest : parse (after:ss) \n | otherwise = ('-':'-':' ':s) : comment ss \n where \n isCommentEnd ('-':'}':xs) before \n = (True, ('-':'-':' ':(reverse before)), xs) \n isCommentEnd (x:xs) before \n = (e || False, b, a) \n where \n (e, b, a) = isCommentEnd xs (x:before) \n isCommentEnd [] before \n = (False, before, []) \n (ended, rest, after) = isCommentEnd s [] \n \n \n \n"
+Func ([Fstat ("comment :: Parser comment ([]:ss)","= comment ss comment ((\"-}\"):ss) = parse ss comment (('-':'}':s):ss) = ('-':'-':' ':s) : parse ss comment (s:ss) | ended = rest : parse (after:ss) | otherwise = ('-':'-':' ':s) : comment ss where isCommentEnd ('-':'}':xs) before = (True, ('-':'-':' ':(reverse before)), xs) isCommentEnd (x:xs) before = (e || False, b, a) where (e, b, a) = isCommentEnd xs (x:before) isCommentEnd [] before = (False, before, []) (ended, rest, after) = isCommentEnd s []")],[])
 SLineC " comment ((x:xs):ss)"
 SLineC " = comment (xs:ss)"
 SLineC " comment ([]:ss)"
 SLineC " = comment ss"
 SLineC " empty space"
-FLine "space :: Parser \n space ((' ':s):ss) \n = parse (s:ss) \n \n processFunction :: Parser \n processFunction ss \n = pfunc ss [] \n \n pfunc [] _ \n = [] \n pfunc ([]:[]:prgm) function \n = pfunc prgm function \n pfunc (('-':'-':s):ss) function \n = ('-':'-':' ':s) : pfunc ss function \n pfunc (('{':'-':s):ss) _ \n = comment (s:ss) \n pfunc [p] function \n = (processWhere (reverse function)) ++ (parse [p]) \n pfunc (p:q:prgm) function \n | isFuncDef q = (processWhere (reverse (p:function))) ++ (parse prgm) \n | otherwise = pfunc prgm (q:p:function) \n \n processWhere (\"\":func) \n = processWhere func \n processWhere func \n | hasWhere func = pwhere func [] \n | otherwise = func \n \n hasWhere [] \n = False \n hasWhere (f:func) \n | strip f == \"where\" = True \n | otherwise = hasWhere func \n \n pwhere func [] \n = \"YO\":func \n \n"
+Func ([Fstat ("space :: Parser space ((' ':s):ss)","= parse (s:ss) processFunction :: Parser processFunction ss = pfunc ss [] pfunc [] _ = [] pfunc ([]:[]:prgm) function = pfunc prgm function pfunc (('-':'-':s):ss) function = ('-':'-':' ':s) : pfunc ss function pfunc (('{':'-':s):ss) _ = comment (s:ss) pfunc [p] function = (processWhere (reverse function)) ++ (parse [p]) pfunc (p:q:prgm) function | isFuncDef q = (processWhere (reverse (p:function))) ++ (parse prgm) | otherwise = pfunc prgm (q:p:function) processWhere (\"\":func) = processWhere func processWhere func | hasWhere func = pwhere func [] | otherwise = func hasWhere [] = False hasWhere (f:func) | strip f == \"where\" = True | otherwise = hasWhere func pwhere func [] = \"YO\":func")],[])
 SLineC " pwhere (f:func) fn"
 SLineC " | strip f == \"where\" = mend (reverse fn) (makeWhereMap func)"
 SLineC " | otherwise = pwhere func (f:fn)"
@@ -44,4 +44,4 @@ SLineC " = concatMap (\\f -> concat . (replace wheremap) $ (words f)) function"
 SLineC " where"
 SLineC " replace wheremap tokens"
 SLineC " function definitions"
-FLine "isFuncDef :: String -> Bool \n isFuncDef (':':':':_) \n = True \n isFuncDef (x:xs) \n = isFuncDef xs \n isFuncDef [] \n = False \n"
+Func ([Fstat ("isFuncDef :: String -> Bool isFuncDef (':':':':_)","= True isFuncDef (x:xs) = isFuncDef xs isFuncDef [] = False")],[])

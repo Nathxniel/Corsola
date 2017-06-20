@@ -8,4 +8,4 @@ import HParser.Parse3
 
 parse :: Parser
 parse
-  = parse3 . parse2 . parse1
+  = undefined . parse3 . parse2 . parse1

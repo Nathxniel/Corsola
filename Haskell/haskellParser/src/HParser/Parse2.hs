@@ -1,20 +1,21 @@
 module HParser.Parse2
   ( parse2
   , Block
-  , Statement) where
+  , Statement (..)) where
 
 import Data.List
 
 type Block     = [Statement]
-data Statement = Fstat (String, String) -- function (lhs, rhs)
-               | FLine String           -- line within a function
-               | FuncDef String         -- function definitions
-               | SLineC String          -- single line comments
-               | MLineC String          -- multiline comments
-               | MdleStat String        -- module statements
-               | ImprtStat String       -- import statements
-               | TypeStat String        -- type or data statements
-               | Func (Block, Block) -- (body, where clause)  
+data Statement = SLineC String              -- single line comments
+               | MLineC String              -- multiline comments
+               | MdleStat String            -- module statements
+               | ImprtStat String           -- import statements
+               | TypeStat String            -- type or data statements
+               | FLine String               -- general function line
+               | WLine String               -- general where clause line
+               | FuncDef String             -- function definitions
+               | FStat ([String], [String]) -- function statments (lhs, rhs)
+               | Func (Block, Block)        -- function (body, where clause)
                deriving (Show)
 
 parse2 :: [String] -> Block
@@ -64,10 +65,10 @@ parseMdleStat :: [String] -> (Statement, [String])
 parseMdleStat tks
   = parseMultiline tks [] MdleStat
 
-parseFunc :: [String] -> (Statement, [String])
-parseFunc tks
-  = parseMultiline tks [] FLine
-
 parseTypeStat :: [String] -> (Statement, [String])
 parseTypeStat tks
   = parseMultiline tks [] TypeStat
+
+parseFunc :: [String] -> (Statement, [String])
+parseFunc tks
+  = parseMultiline tks [] FLine

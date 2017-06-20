@@ -10,6 +10,7 @@ import HParser
  -}
 import HParser.Parse1
 import HParser.Parse2
+import HParser.Parse3
 
 import System.IO (readFile, writeFile)
 import System.Environment
@@ -23,7 +24,7 @@ main = do
   [readfile, writefile] <- getArgs
   ls <- lines <$> readFile readfile
   -- (writeFile writefile) . unlines . parse $ ls
-  (writeFile writefile) . test . parse2 . parse1 $ ls 
+  (writeFile writefile) . test . parse3 . parse2 . parse1 $ ls 
     where 
       test = (foldr (\x acc -> (show x) ++ ('\n':acc)) "")
 
