@@ -1,142 +1,91 @@
-import System.IO (readFile, writeFile)
-import System.Environment (getArgs)
-import Control.Monad
-import Control.Applicative 
-import Data.Char
+module Sequences where
 
-type Parser = [String] -> [String]
-
--- File IO version main
-main :: IO ()
-main = do
-  -- get read and write location from program arguments
-  [readfile, writefile] <- getArgs
-  -- remove extraneous spaces
-  ls <- map (unwords . words) . lines <$> readFile readfile
-  -- write output to file
-  writeFile writefile (unlines . parse $ ls)
-
--- Terminal version main
---main :: IO ()
---main = do
---  ls <- lines <$> getContents
---  putStrLn . unlines . parse $ ls
-
-{- the parser -}
-
-parse :: Parser
--- parsing single-line comments
-parse (('-':'-':s):ss)
-  = ('-':'-':' ':s) : parse ss
-parse (('{':'-':s):ss)
-  = comment (s:ss)
-
---empty lines and spaces
-parse ("":ss)
-  = parse ss
-parse a@((' ':_):_)
-  = space a 
-
---function definitions
-parse (s:ss)
-  | isFuncDef s = s : processFunction ss
-  | otherwise   = parse ss
-parse []
-  = []
-
---  helper functions for specific parses
+import Data.Char (ord, chr)
 
 
--- strip spaces
-strip :: String -> String
-strip []
-  = []
-strip (' ':cs)
-  = strip cs
-strip (c:cs)
-  = c : strip cs
+-- Returns first argument if it is larger than the second,
+-- returns the second argument otherwise
+maxOf2 :: Int -> Int -> Int
+maxOf2 x y -- people should'nt comment like this tbf
+  | x >= y     = x
+  | otherwise  = y
 
--- multi-line comments
-comment :: Parser
-comment ([]:ss)
-  = comment ss
-comment (("-}"):ss)
-  = parse ss
-comment (('-':'}':s):ss)
-  = ('-':'-':' ':s) : parse ss
-comment (s:ss)
-  | ended     = rest : parse (after:ss)
-  | otherwise = ('-':'-':' ':s) : comment ss
-  where
-    isCommentEnd ('-':'}':xs) before
-      = (True, ('-':'-':' ':(reverse before)), xs)
-    isCommentEnd (x:xs) before
-      = (e || False, b, a)
-      where
-        (e, b, a) = isCommentEnd xs (x:before)
-    isCommentEnd [] before
-      = (False, before, [])
-    (ended, rest, after) = isCommentEnd s []
+-- Returns the largest of three Ints
+maxOf3 :: Int -> Int -> Int -> Int
+maxOf3 x y z
+   = maxOf2 (maxOf2 x y) z {- bad
+bitches on me i guess money was the only thing missing
+(hold on hold on wait)
+-}
+
+-- Without using the previous function
+{-
+  | x >= y && x >= z  = x
+  | y >= z            = y
+  | otherwise         = z
+-}
+
+-- Returns True if the character represents a digit '0'..'9';
+-- False otherwise
+isADigit :: Char -> Bool
+isADigit c
+   = ord c >= ord '0' && ord c <= ord '9'
+
+-- Returns True if the character represents an alphabetic
+-- character either in the range 'a'..'z' or in the range 'A'..'Z';
+isAlpha :: Char -> Bool
+isAlpha c
+   = (ord c >= ord 'a' && ord c <= ord 'z') ||
+   (ord c >= ord 'A' && ord c <= ord 'Z')
+
+-- Returns the integer [0..9] corresponding to the given character.
+-- Note: this is a simpler version of digitToInt in module Data.Char,
+-- which does not assume the precondition
+digitToInt :: Char -> Int
+-- Pre: the character is one of '0'..'9'
+digitToInt c
+    | ord c >= 48 && ord c <= 57  = ord (c) - ord '0'
+    | otherwise                   = error "Cannot convert character to Int"
+
+-- Returns the upper case character corresponding to the input.
+-- Uses guards by way of variety.
+toUpper :: Char -> Char
+-- Pre: the input character can be capitalised
+toUpper c
+   | ord c >= 97 && ord c <= 122  = chr (ord c - (ord 'a' - ord 'A'))
+   | ord c >= 65 && ord c <= 90   = c
+
+--
+-- Sequences and series
+--
+
+-- Arithmetic sequence
+arithmeticSeq :: Double -> Double -> Int -> Double
+arithmeticSeq a d n
+   = a + d * n'
+   where
+      n' = fromIntegral n
 
 
+-- Geometric sequence
+geometricSeq :: Double -> Double -> Int -> Double
+geometricSeq a r n
+   = a * r ^ n'
+   where
+      n' = fromIntegral n
 
--- comment ((x:xs):ss)
---   = comment (xs:ss)
--- comment ([]:ss)
---   = comment ss
-  
--- empty space
-space :: Parser
-space ((' ':s):ss)
-  = parse (s:ss)
+-- Arithmetic series
+arithmeticSeries :: Double -> Double -> Int -> Double
+arithmeticSeries a d n
+   = (n' + 1) * (a + (d * n') / 2)
+   where
+      n' = fromIntegral n
 
-processFunction :: Parser
-processFunction ss
-  = pfunc ss []
+-- Geometric series
+geometricSeries :: Double -> Double -> Int -> Double
+geometricSeries a r n
+   | r == 1.00  = a * (fromIntegral n + 1)
+   | otherwise  = a * (1 - r ^ (fromIntegral n + 1)) / (1 - r)
 
-pfunc [] _
-  = []
-pfunc ([]:[]:prgm) function
-  = pfunc prgm function
-pfunc (('-':'-':s):ss) function
-  = ('-':'-':' ':s) : pfunc ss function
-pfunc (('{':'-':s):ss) _
-  = comment (s:ss)
-pfunc [p] function
-  = (processWhere (reverse function)) ++ (parse [p])
-pfunc (p:q:prgm) function
-  | isFuncDef q = (processWhere (reverse (p:function))) ++ (parse prgm)
-  | otherwise   = pfunc prgm (q:p:function)
-
-processWhere ("":func)
-  = processWhere func
-processWhere func
-  | hasWhere func = pwhere func []
-  | otherwise     = func
-
-hasWhere []
-  = False
-hasWhere (f:func)
-  | strip f == "where" = True
-  | otherwise          = hasWhere func
-
-pwhere func []
-  = "YO":func
-
--- pwhere (f:func) fn
---   | strip f == "where" = mend (reverse fn) (makeWhereMap func)
---   | otherwise          = pwhere func (f:fn)
-
---mend function wheremap
---  = concatMap (\f -> concat . (replace wheremap) $ (words f)) function
---  where
---    replace wheremap tokens
-
--- function definitions
-isFuncDef :: String -> Bool
-isFuncDef (':':':':_)
-  = True
-isFuncDef (x:xs)
-  = isFuncDef xs
-isFuncDef []
-  = False
+testFunction
+  = id
