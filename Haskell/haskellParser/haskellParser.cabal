@@ -58,6 +58,7 @@ executable haskellParser
                        HParser.Parse1
                        HParser.Parse2
                        HParser.Parse3
+                       HParser.Resource
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
