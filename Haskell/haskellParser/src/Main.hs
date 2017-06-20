@@ -4,16 +4,8 @@ module Main
 
 import HParser
 
-{-
- - For testing
- - TODO: delete
- -}
-import HParser.Parse1
-import HParser.Parse2
-import HParser.Parse3
-
 import System.IO (readFile, writeFile)
-import System.Environment
+import System.Environment (getArgs)
 import Control.Monad
 import Control.Applicative ((<$>))
 import Data.List (lines, unlines)
@@ -22,9 +14,4 @@ import Data.List (lines, unlines)
 main :: IO ()
 main = do
   [readfile, writefile] <- getArgs
-  ls <- lines <$> readFile readfile
-  -- (writeFile writefile) . unlines . parse $ ls
-  (writeFile writefile) . test . parse3 . parse2 . parse1 $ ls 
-    where 
-      test = (foldr (\x acc -> (show x) ++ ('\n':acc)) "")
-
+  (parse <$> readFile readfile) >>= (writeFile writefile)

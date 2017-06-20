@@ -6,6 +6,11 @@ import HParser.Parse1
 import HParser.Parse2
 import HParser.Parse3
 
-parse :: Parser
+{-
+ - edits haskell parse3 code
+ -}
+edit
+  = foldr (\x acc -> (show x) ++ ('\n':acc)) ""
+
 parse
-  = undefined . parse3 . parse2 . parse1
+  = edit . parse3 . parse2 . parse1

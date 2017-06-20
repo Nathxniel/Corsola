@@ -24,16 +24,20 @@ parse2 tks =
     []            -> []
     ("\n"):r      -> parse2 r
     ("-}"):r      -> parse2 r
-    ('-':'-':t):r -> (fst $ parseSLineC (t:r)) : (parse2.snd.parseSLineC $ (t:r))
-    ('{':'-':t):r -> (fst $ parseMLineC (t:r)) : (parse2.snd.parseMLineC $ (t:r))
-    ("import"):r  -> (fst $ parseImprtStat r)  : (parse2.snd.parseImprtStat $ r)
-    ("module"):r  -> (fst $ parseMdleStat r)   : (parse2.snd.parseMdleStat $ r)
-    ("type"):r    -> (fst $ parseTypeStat r)   : (parse2.snd.parseTypeStat $ r)
-    ("data"):r    -> (fst $ parseTypeStat r)   : (parse2.snd.parseTypeStat $ r)
-    (t:r)         -> (fst $ parseFunc (t:r))   : (parse2.snd.parseFunc $ (t:r))
+    ('-':'-':t):r -> p2 parseSLineC (t:r) 
+    ('{':'-':t):r -> p2 parseMLineC (t:r) 
+    ("import"):r  -> p2 parseImprtStat r  
+    ("module"):r  -> p2 parseMdleStat r   
+    ("type"):r    -> p2 parseTypeStat r   
+    ("data"):r    -> p2 parseTypeStat r   
+    (t:r)         -> p2 parseFunc (t:r)   
 
-parseMultiline :: [String] -> [String] 
-                   -> (String -> Statement) -> (Statement, [String])
+-- parse2 helper: helps recursively iterate parse2
+p2 f a
+  = newStmt : parse2 rest
+  where
+    (newStmt, rest) = f a
+
 parseMultiline tks acc typ =
   case tks of
     []            -> (typ (unwords acc), [])
