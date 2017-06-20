@@ -12,5 +12,8 @@ import HParser.Parse3
 edit
   = foldr (\x acc -> (show x) ++ ('\n':acc)) ""
 
+{-
+ - main parsing function
+ -}
 parse
   = edit . parse3 . parse2 . parse1

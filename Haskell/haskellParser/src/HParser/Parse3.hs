@@ -2,7 +2,7 @@ module HParser.Parse3
   ( parse3
   ) where
 
-import HParser.Parse1 (intersperseMap)
+import HParser.Parse1
 import HParser.Parse2
 import HParser.Resource
 
@@ -15,15 +15,15 @@ parse3 b =
     (MdleStat m):bs  -> (MdleStat m):(parse3 bs)
     (ImprtStat i):bs -> (ImprtStat i):(parse3 bs)
     (TypeStat t):bs  -> (TypeStat t):(parse3 bs)
-    (FLine f):bs     -> (process (prepare f)) ++ (parse3 bs)
+    (FLine f):bs     -> (process $ prepare f) ++ (parse3 bs)
     b:bs             -> parse3 bs
 
 {-
  - applies parse1 to unprocessed FLine's contents;
  -  parsing over tokens is easier then strings
  -}
-prepare k
-  = (intersperseMap "\n" words) $ lines k
+prepare
+  = parse1
 
 {-
  - finishes processing unprocessed FLines
@@ -64,11 +64,13 @@ pFDef n fdls (x:xs) = pFDef n (fdls ++ x) xs
 pFDef _ fdls []     = (FuncDef fdls, [])
     
 -- processes function statements (form: lhs = rhs)
-pFStat name racc tks
-  = (FStat (lhs, rhs), rest)
+pFStat name wacc tks
+  = (Pattern (FStat (lhs, rhs), w), rest)
   where
-    (lhs, r)     = break (=="=") tks
-    (rhs, rest)  = pRhs r []
+    (lhs, r)   = break (=="=") tks
+    (rh, rest) = pRhs r []
+    (rhs, w')  = break (=="where") rh
+    w          = parse2 w'
     pRhs ("\n":h:rs) racc
       | h == name   = (racc, h:rs)
       | otherwise   = pRhs (h:rs) (racc ++ ["\n"])

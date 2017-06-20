@@ -6,6 +6,7 @@ import HParser
 
 import System.IO (readFile, writeFile)
 import System.Environment (getArgs)
+
 import Control.Monad
 import Control.Applicative ((<$>))
 import Data.List (lines, unlines)

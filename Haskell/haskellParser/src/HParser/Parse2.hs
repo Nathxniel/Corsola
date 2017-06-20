@@ -12,10 +12,10 @@ data Statement = SLineC String              -- single line comments
                | ImprtStat String           -- import statements
                | TypeStat String            -- type or data statements
                | FLine String               -- general function line
-               | WLine String               -- general where clause line
                | FuncDef String             -- function definitions
                | FStat ([String], [String]) -- function statments (lhs, rhs)
-               | Func (Block, Block)        -- function (body, where clause)
+               | Pattern (Statement, Block) -- function pattern (body, where)
+               | Func Block                 -- function (body, where clause)
                deriving (Show)
 
 parse2 :: [String] -> Block
