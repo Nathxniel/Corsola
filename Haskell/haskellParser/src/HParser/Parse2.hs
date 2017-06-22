@@ -5,6 +5,11 @@ module HParser.Parse2
 
 import Data.List
 
+{-
+ - Haskell source line types
+ -
+ - parse2 converts haskell source lines into these types
+ -}
 type Block     = [Statement]
 data Statement = SLineC String              -- single line comments
                | MLineC String              -- multiline comments
@@ -18,6 +23,16 @@ data Statement = SLineC String              -- single line comments
                | Func Block                 -- function (body, where clause)
                deriving (Show)
 
+{-
+ - Second parse
+ -
+ - convertes tokenised lines into line types:
+ - 
+ - single line comments
+ - multiline comments
+ - module and import statements
+ - general function lines
+ -}
 parse2 :: [String] -> Block
 parse2 tks = 
   case tks of
@@ -32,12 +47,19 @@ parse2 tks =
     ("data"):r    -> p2 parseTypeStat r   
     (t:r)         -> p2 parseFunc (t:r)   
 
--- parse2 helper: helps recursively iterate parse2
+{-
+ - parse2 helper: 
+ -
+ - helps recursively iterate parse2
+ -}
 p2 f a
   = newStmt : parse2 rest
   where
     (newStmt, rest) = f a
 
+{-
+ - parses over mutli-line statements
+ -}
 parseMultiline tks acc typ =
   case tks of
     []            -> (typ (unwords acc), [])
@@ -49,6 +71,9 @@ parseMultiline tks acc typ =
     ("data"):_    -> (typ (unwords acc), tks)
     (t:ts)        -> parseMultiline ts (acc ++ [t]) typ
 
+{-
+ - individual parsers below
+ -}
 parseSLineC :: [String] -> (Statement, [String])
 parseSLineC tks
   = (SLineC (unwords sline), rest)

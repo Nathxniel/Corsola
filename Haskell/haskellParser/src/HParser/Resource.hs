@@ -8,7 +8,7 @@ module HParser.Resource
 type FunctionName = String
 
 -- TODO: complete
---prldFuncs :: S.Set FunctionName
+-- prldFuncs :: S.Set FunctionName
 prldFuncs :: [FunctionName]
 prldFuncs
   -- = S.fromList ["min", "max", "fst", "snd", "map"]

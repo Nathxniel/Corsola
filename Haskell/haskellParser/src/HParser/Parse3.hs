@@ -6,6 +6,11 @@ import HParser.Parse1
 import HParser.Parse2
 import HParser.Resource
 
+{-
+ - Third parse
+ -
+ - finishes processing unprocessed function lines
+ -}
 parse3 :: Block -> Block
 parse3 b =
   case b of
@@ -20,14 +25,14 @@ parse3 b =
 
 {-
  - applies parse1 to unprocessed FLine's contents;
- -  parsing over tokens is easier then strings
+ -  
+ - (parsing over tokens is easier then strings)
  -}
 prepare
   = parse1
 
 {-
- - finishes processing unprocessed FLines
- - from parse2
+ - finishes processing unprocessed FLines from parse2
  -}
 process []
   = error "Parse error: empty pattern/function"
@@ -50,48 +55,53 @@ p name tks processed =
     (n:"::":ts) -> p' name tks (pFDef name []) processed
     _           -> p' name tks (pFStat name []) processed
     
--- p helper: helps recursively iterate p
+{- 
+ - p helper: 
+ -
+ - helps recursively iterate p
+ -}
 p' name tks f acc
   = p name rest (acc ++ [newStmt])
   where
     (newStmt, rest) = f tks
 
--- processes function definitions
-pFDef name fdls ("\n":h:rs)
-  | h == name = (FuncDef fdls, h:rs)
-  | otherwise = pFDef name (fdls ++ "\n") (h:rs)
+{- 
+ - processes:
+ -
+ - function definitions
+ -}
+pFDef name fdls ("\n":t:ts)
+  | t == name = (FuncDef fdls, t:ts)
+  | otherwise = pFDef name (fdls ++ "\n") (t:ts)
 pFDef n fdls (x:xs) = pFDef n (fdls ++ x) xs 
 pFDef _ fdls []     = (FuncDef fdls, [])
     
--- processes function statements (form: lhs = rhs)
+{- 
+ - processes:
+ -
+ - function patterns 
+ - of the form: lhs = rhs
+ -}
 pFStat name wacc tks
   = (Pattern (FStat (lhs, rhs), w), rest)
   where
-    (lhs, r)   = break (=="=") tks
-    (rh, rest) = pRhs r []
-    (rhs, w')  = break (=="where") rh
-    w          = parse2 w'
+    (lhs, r)    = break (=="=") tks
+    (rhs, cont) = pRhs r []
+    (w, rest)   = pWre cont []
+
     pRhs ("\n":h:rs) racc
-      | h == name   = (racc, h:rs)
-      | otherwise   = pRhs (h:rs) (racc ++ ["\n"])
+      | h == name    = (racc, h:rs)
+      | h == "where" = (racc, rs)
+      | otherwise    = pRhs (h:rs) (racc ++ ["\n"])
     pRhs (x:xs) racc = pRhs xs (racc ++ [x])
     pRhs [] racc     = (racc, [])
-
--- process []
---   = error "Parse error: empty pattern/function"
--- process (ftk:ftks)
---   = Func $ p ftk (ftk:ftks) []
---     
--- p name [] acc
---   = (acc, [])
--- p name tks acc
---   = (acc' ++ [FStat (lhs, rhs)], rest)
---   where
---     (lhs, r)     = break (=="=") tks
---     (rhs, cont)  = pRhs r []
---     (acc', rest) = p name cont acc
---     pRhs ("\n":h:rs) racc
---       | h == name   = (racc, h:rs)
---       | otherwise   = pRhs (h:rs) (racc ++ ["\n"])
---     pRhs (x:xs) racc = pRhs xs (racc ++ [x])
---     pRhs [] racc     = (racc, [])
+  
+    pWre ("\t":h:rs) wacc
+      = pWre (h:rs) wacc
+    pWre ("\n":h:rs) wacc
+      | h /= name    = (wacc, h:rs)
+      | otherwise    = pWre (h:rs) wacc
+    pWre [] wacc     = (wacc, [])
+    pWre (x:xs) wacc = pWre c (wacc ++ [n])
+      where
+        (n, c) = pFStat x (x:xs) []
