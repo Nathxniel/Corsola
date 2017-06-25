@@ -127,6 +127,8 @@ alias settings='corsola && cd Config'
 alias editbash='settings && vim mybashrc.sh'
 alias editi3='settings && vim myi3Config/config'
 alias editi3bar='settings && vim myi3Config/i3status.conf'
+alias a='light -A 20%'
+alias u='light -U 20%'
 
 # variant aliases (TODO)
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
