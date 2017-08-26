@@ -141,6 +141,8 @@ alias haskell='cd $(ls -td -- ~/Documents/Corsola/Haskell/*/ | head -n 1)'
 
 # intelliJ
 export PATH=$PATH:~/bin
+# cabal thingy
+export PATH=$HOME/.cabal/bin:$PATH
 # alias intellij='cd /opt/idea-IU-163.11103.6/bin/ && sh idea.sh &'
 
 # internet (fuck the fact i have to use this)

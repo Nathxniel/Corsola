@@ -22,6 +22,10 @@ intersperseMap d f
  - put spaces  after "}-" ( multi line comments)
  - EXPLOIT TAB CHARACTER OMG
  -}
+tokens :: String -> [String]
+tokens
+  = undefined
+
 parse1 :: String -> [String]
 parse1
   = (intersperseMap "\n" prepare) . lines
