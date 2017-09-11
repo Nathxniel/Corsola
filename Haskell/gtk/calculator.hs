@@ -28,7 +28,9 @@ getSndArg (Division       x) = x
 -- | Render given 'Value'.
 renderValue :: Value -> String
 renderValue (Value x action) =
-  g x ++ f a ++ (if null y then "" else g y)
+  readValueNumber x 
+  ++ f a 
+  ++ (if null y then "" else g y)
   where
     (a, y) =
       case action of
@@ -83,8 +85,9 @@ backspace (Value x action) =
     Nothing -> Value (drop 1 x) Nothing
     Just  a -> Value x (Just $ mapAction (drop 1) a)
 
--- | Apply given operator to current state. If some action is already fully
--- constructed, evaluate it first.
+-- | Apply given operator to current state. 
+--   If some action is already fully
+--   constructed, evaluate it first.
 operator :: (String -> Action) -> Value -> Value
 operator op value =
   let (Value x action) = equals value
@@ -107,6 +110,11 @@ clearEntry (Value x action) =
 clearAll :: Value -> Value
 clearAll = const (Value "" Nothing)
 
+readValueNumber :: String -> Double
+readValueNumber ""       = 0
+readValueNumber ('.':xs) = readValueNumber ('0':'.':xs)
+readValueNumber xs       = read (reverse xs)
+
 -- | Evaluate current calculator's state putting result in place of first
 -- argument.
 equals :: Value -> Value
@@ -118,18 +126,27 @@ equals (Value x action) =
         then Value x action
         else Value result Nothing
           where
-            g  :: String -> Double
-            g ""       = 0
-            g ('.':xs) = g ('0':'.':xs)
-            g xs       = read (reverse xs)
-            x' = g x
-            y' = g (getSndArg a)
-            result = reverse . show $
+            x'         = readValueNumber x
+            y'         = readValueNumber (getSndArg a)
+            result     = reverse . show $
               case a of
                 Addition       _ -> x' + y'
                 Subtraction    _ -> x' - y'
                 Multiplication _ -> x' * y'
                 Division       _ -> x' / y'
+
+-- | Evaluate special numeric calculator function
+--   takes a value with no action,
+--   and performs given function on value expression
+specialOperation :: (Double -> Double) -> Value -> Value
+specialOperation f v = 
+  let (Value x action) = equals v
+  in case action of
+    Just a  -> Value x action
+    Nothing -> Value result Nothing
+      where
+        x'         = f . readValueNumber $ x
+        result     = reverse . show $ x'
 
 main :: IO ()
 main = do
@@ -149,34 +166,34 @@ main = do
   let attach x y w h item = gridAttach grid item x y w h
       mkBtn               = mkButton st display
   attach 0 0 5 1 display
-  mkBtn "MC"  id >>= attach 0 1 1 1   
-  mkBtn "MR"  id >>= attach 1 1 1 1
-  mkBtn "MS"  id >>= attach 2 1 1 1
-  mkBtn "M+"  id >>= attach 3 1 1 1
-  mkBtn "M–"  id >>= attach 4 1 1 1
-  mkBtn "←"   id >>= attach 0 2 1 1
-  mkBtn "CE"  id >>= attach 1 2 1 1
-  mkBtn "C"   id >>= attach 2 2 1 1
-  mkBtn "±"   id >>= attach 3 2 1 1
-  mkBtn "√"   id >>= attach 4 2 1 1
-  mkBtn "7"  (enterDigit '7') >>= attach 0 3 1 1
-  mkBtn "8"  (enterDigit '8') >>= attach 1 3 1 1
-  mkBtn "9"  (enterDigit '9') >>= attach 2 3 1 1
-  mkBtn "÷"   id >>= attach 3 3 1 1
-  mkBtn "%"   id >>= attach 4 3 1 1
-  mkBtn "4"   id >>= attach 0 4 1 1
-  mkBtn "5"   id >>= attach 1 4 1 1
-  mkBtn "6"   id >>= attach 2 4 1 1
-  mkBtn "*"   id >>= attach 3 4 1 1
-  mkBtn "1/x" id >>= attach 4 4 1 1
-  mkBtn "1"   id >>= attach 0 5 1 1
-  mkBtn "2"   id >>= attach 1 5 1 1
-  mkBtn "3"   id >>= attach 2 5 1 1
-  mkBtn "–"   id >>= attach 3 5 1 1
-  mkBtn "="   id >>= attach 4 5 1 2
-  mkBtn "0"   id >>= attach 0 6 2 1
-  mkBtn "."   enterDot >>= attach 2 6 1 1
-  mkBtn "+"   id >>= attach 3 6 1 1
+  mkBtn "MC"  id                               >>= attach 0 1 1 1
+  mkBtn "MR"  id                               >>= attach 1 1 1 1
+  mkBtn "MS"  id                               >>= attach 2 1 1 1
+  mkBtn "M+"  id                               >>= attach 3 1 1 1
+  mkBtn "M–"  id                               >>= attach 4 1 1 1
+  mkBtn "←"   backspace                        >>= attach 0 2 1 1
+  mkBtn "CE"  clearEntry                       >>= attach 1 2 1 1
+  mkBtn "C"   clearAll                         >>= attach 2 2 1 1
+  mkBtn "+"   (operator Addition)              >>= attach 3 6 1 1
+  mkBtn "–"   (operator Subtraction)           >>= attach 3 5 1 1
+  mkBtn "÷"   (operator Division)              >>= attach 3 3 1 1
+  mkBtn "*"   (operator Multiplication)        >>= attach 3 4 1 1
+  mkBtn "%"   (specialOperation (*100))        >>= attach 4 3 1 1
+  mkBtn "1/x" (specialOperation (\x -> 1 / x)) >>= attach 4 4 1 1
+  mkBtn "√"   (specialOperation sqrt)          >>= attach 4 2 1 1
+  mkBtn "±"   (specialOperation negate)        >>= attach 3 2 1 1
+  mkBtn "1"   (enterDigit '1')                 >>= attach 0 5 1 1
+  mkBtn "2"   (enterDigit '2')                 >>= attach 1 5 1 1
+  mkBtn "3"   (enterDigit '3')                 >>= attach 2 5 1 1
+  mkBtn "4"   (enterDigit '4')                 >>= attach 0 4 1 1
+  mkBtn "5"   (enterDigit '5')                 >>= attach 1 4 1 1
+  mkBtn "6"   (enterDigit '6')                 >>= attach 2 4 1 1
+  mkBtn "7"   (enterDigit '7')                 >>= attach 0 3 1 1
+  mkBtn "8"   (enterDigit '8')                 >>= attach 1 3 1 1
+  mkBtn "9"   (enterDigit '9')                 >>= attach 2 3 1 1
+  mkBtn "0"   (enterDigit '0')                 >>= attach 0 6 2 1
+  mkBtn "."   enterDot                         >>= attach 2 6 1 1
+  mkBtn "="   equals                           >>= attach 4 5 1 2
   containerAdd window grid         
 
   window `on` deleteEvent $ do
