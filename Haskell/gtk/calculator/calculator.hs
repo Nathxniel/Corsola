@@ -28,7 +28,7 @@ getSndArg (Division       x) = x
 -- | Render given 'Value'.
 renderValue :: Value -> String
 renderValue (Value x action) =
-  readValueNumber x 
+  g x 
   ++ f a 
   ++ (if null y then "" else g y)
   where
