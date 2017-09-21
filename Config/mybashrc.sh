@@ -129,6 +129,8 @@ alias editi3='settings && vim myi3Config/config'
 alias editi3bar='settings && vim myi3Config/i3status.conf'
 alias a='light -A 20%'
 alias u='light -U 20%'
+# listing services
+alias psc='ps xawf -eo pid,user,cgroup,args'
 
 # variant aliases (TODO)
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
@@ -145,5 +147,6 @@ export PATH=$PATH:~/bin
 export PATH=$HOME/.cabal/bin:$PATH
 # alias intellij='cd /opt/idea-IU-163.11103.6/bin/ && sh idea.sh &'
 
-# internet (fuck the fact i have to use this)
+# networking
+# restarting network manager service
 alias connect='sudo service network-manager restart'
