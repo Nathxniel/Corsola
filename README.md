@@ -19,6 +19,14 @@ working on a program that can parse Haskell source. I.e.:
 
 Havent decided what to do with this, perhaps use it as a code-style checker/applyer
 
+## Networking
+
+### WAPtest.sh
+
+working on a script that converts given interface into wireless access point.
+
+currently unfinished, resolving DNS issues with client side DHCP on station interface
+
 ## Resume
 
 Contains [CV](./Resume/CV.pdf)
