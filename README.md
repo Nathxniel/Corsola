@@ -25,7 +25,7 @@ Havent decided what to do with this, perhaps use it as a code-style checker/appl
 
 working on a script that converts given interface into wireless access point.
 
-currently unfinished, resolving DNS issues with client side DHCP on station interface
+currently provides internet access with no security
 
 ## Resume
 
