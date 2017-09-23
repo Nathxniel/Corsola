@@ -2,7 +2,7 @@
 
 ########################################################### 
 #                                                         #
-#                       WAPtest                           #
+#                       WAPcreate                         #
 #                                                         #
 #      creates WAP using supplied station and ap          #
 #                      interfaces                         #
@@ -15,7 +15,7 @@
 #  - dhcpd
 #  - hostapd
 
-# kill processes invoked by WAPtest
+# kill processes invoked by WAPcreate
 stop() {
   if ! [ -z "$(ps -e | grep NetworkManager)" ]; then
     echo "Error: NetworkManager appears to be running"
@@ -29,7 +29,7 @@ stop() {
 }
 
 
-# show processes invoked by WAPtest
+# show processes invoked by WAPcreate
 show() {
   echo "showing current processes"
   echo $(ps -e | grep dhclient)
@@ -41,10 +41,10 @@ show() {
 # help
 usage() {
   echo "usage: "
-  echo "call \"# ./WAPtest.sh start [station_int] [ap_int]\" to run"
-  echo "call \"# ./WAPtest.sh stop\" to stop all processes"
-  echo "call \"# ./WAPtest.sh show\" to show all processes"
-  echo "call \"# ./WAPtest.sh help\" to show this help text"
+  echo "call \"# ./WAPcreate.sh start [station_int] [ap_int]\" to run"
+  echo "call \"# ./WAPcreate.sh stop\" to stop all processes"
+  echo "call \"# ./WAPcreate.sh show\" to show all processes"
+  echo "call \"# ./WAPcreate.sh help\" to show this help text"
 }
 
 case "$1" in
@@ -81,11 +81,7 @@ fi
 station=$2
 ap=$3
 
-# Script to test wireless hotspot with internet access:
-# TODO:
-#   1 - finish this
-#   2 - understand android phone architecture and OS
-#   3 - test on android
+# Script to create wireless hotspot with internet access:
 
 # [ ] PRE: Wi-Fi Station and AP interfaces are available
 #  - software versions can be created using:
@@ -98,6 +94,14 @@ ap=$3
 #       network={
 #         ...
 #       }
+#      ...
+
+# [ ] PRE: supersede dns in dhclient
+#  - /etc/dhcp/dhclient.conf
+#     ...
+#       #supersede domain-name "fugue.com ...
+#       supersede domain-name-servers 127.0.0.1, 8.8.8.8;
+#       #require ...
 #      ...
 
 # [ ] PRE: make sure ap interface has static ip
@@ -127,9 +131,9 @@ ap=$3
 #      ...
 
 # NOTE: this script is to be run as root (or using sudo)
-#  $ sudo ./WAPtest.sh
+#  $ sudo ./WAPcreate.sh
 #  or
-#  # ./WAPtest.sh
+#  # ./WAPcreate.sh
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  1 - stop the network manager service
@@ -137,13 +141,23 @@ service network-manager stop
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#  2 - bring DOWN all wireless interfaces
+#  2 - configure network devices
+#   2.1 - bring DOWN all wireless interfaces
+#         (TODO: only bring down wireless interfaces)`
 ip link set group default down
+#   2.2 - bring the STATION interface to be used UP
+ip link set $station up
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#  3 - bring the STATION interface to be used UP
-ip link set $station up
+#  3 - give access point static ip
+cat ./defaultInterfaces > /etc/network/interfaces
+echo >> /etc/network/interfaces
+echo "# static access point address (by WAPcreate)" >> /etc/network/interfaces
+echo "auto $ap" >> /etc/network/interfaces
+echo "iface $ap inet static" >> /etc/network/interfaces
+echo "  address 10.0.10.1" >> /etc/network/interfaces
+echo "  netmask 255.255.255.0" >> /etc/network/interfaces
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
