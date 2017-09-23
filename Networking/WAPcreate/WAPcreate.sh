@@ -104,15 +104,6 @@ ap=$3
 #       #require ...
 #      ...
 
-# [ ] PRE: make sure ap interface has static ip
-#  - /etc/network/interfaces
-#     ...
-#      auto wlan0_ap
-#      iface wlan0_ap inet static
-#        address ...
-#        netmask ...
-#      ...
-
 # [ ] PRE: hostapd configuration file has been set
 #  - /etc/hostapd/hostapd.conf
 #     ...
@@ -135,32 +126,37 @@ ap=$3
 #  or
 #  # ./WAPcreate.sh
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  1 - stop the network manager service
 service network-manager stop
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  2 - configure network devices
 #   2.1 - bring DOWN all wireless interfaces
 #         (TODO: only bring down wireless interfaces)`
 ip link set group default down
 #   2.2 - bring the STATION interface to be used UP
 ip link set $station up
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  3 - give access point static ip
+#   3.1 - edit /etc/network/interfaces
 cat ./defaultInterfaces > /etc/network/interfaces
 echo >> /etc/network/interfaces
-echo "# static access point address (by WAPcreate)" >> /etc/network/interfaces
+echo "# static access point address (by WAPcreate)" \
+  >> /etc/network/interfaces
 echo "auto $ap" >> /etc/network/interfaces
 echo "iface $ap inet static" >> /etc/network/interfaces
 echo "  address 10.0.10.1" >> /etc/network/interfaces
 echo "  netmask 255.255.255.0" >> /etc/network/interfaces
+#   3.2 - restart networking
+service networking restart
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  4 - connect to wifi on STATION
 #   4.1 - start dhcp client 
 dhclient -d -v $station &
@@ -176,9 +172,9 @@ if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; then
   echo "nameserver 8.8.4.4" >> /etc/resolv.conf
   echo "search lan" >> /etc/resolv.conf
 fi
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  5 - create NAT rules
 #   -F : flush
 #   -t : table
@@ -192,14 +188,14 @@ iptables -X
 iptables -t nat -X
 iptables -t nat -A POSTROUTING -o $station -j MASQUERADE
 iptables -A FORWARD -i $ap -j ACCEPT
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  6 - allow ip forwarding
 sysctl -w net.ipv4.ip_forward=1
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  7 - create ACCESS POINT
 #   7.1 - start host access point daemon
 hostapd /etc/hostapd/hostapd.conf &
@@ -208,7 +204,7 @@ sleep 5
 #         (TODO: hostapd can up ap interface but 'ip' cant. why?)
 dhcpd -d $ap &
 sleep 5
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
