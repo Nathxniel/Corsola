@@ -150,6 +150,10 @@ ap=$3
 #       }
 #      ...
 
+# [ ] PRE: nodogsplash is installed and config is set
+#  - /etc/nodogsplash/nodogsplash.conf
+#   (see file, it has instructions)
+
 # NOTE: this script is to be run as root (or using sudo)
 #  $ sudo ./WAPcreate.sh
 #  or
@@ -163,7 +167,6 @@ service network-manager stop
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  2 - configure network devices
 #   2.1 - bring DOWN all wireless interfaces
-#         (TODO: only bring down wireless interfaces)
 ip link set group default down
 #   2.2 - bring the STATION interface to be used UP
 ip link set $station up
@@ -190,11 +193,11 @@ service networking restart
 dhclient -d -v $station &
 sleep 5
 #   4.2 - start wpa_supplicant
-wpa_supplicant -i$station -c/etc/wpa_supplicant/wpa_supplicant.conf -Dnl80211 &
+wpa_supplicant -i$station -c/etc/wpa_supplicant/wpa_supplicant.conf &
 sleep 5
 #   4.3 - potentially manually write to resolv.conf 
-#         (zeroConf mnds issues)
-#         (TODO: generalise, current solution is hacky)
+#         (zeroConf mnds issues; resolv.conf is not written to)
+#         (TODO: create service, current solution is hacky)
 refreshDNS
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -232,5 +235,5 @@ sleep 5
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # 8 - start nodogsplash
-cd && ./Downloads/nodogsplash-1.0.2/nodogsplash
+nodogsplash
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
