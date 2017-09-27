@@ -127,8 +127,7 @@ alias settings='corsola && cd Config'
 alias editbash='settings && vim mybashrc.sh'
 alias editi3='settings && vim myi3Config/config'
 alias editi3bar='settings && vim myi3Config/i3status.conf'
-alias a='light -A 20%'
-alias u='light -U 20%'
+
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
 
@@ -138,14 +137,12 @@ alias cnow='cd $(ls -td -- ~/Documents/Corsola/*/ | head -n 1)'
 alias work='cd ~/Documents'
 alias spec='cd $(ls -td -- ~/Documents/*/ | head -n 1) && evince $(ls -t spec* | head -n 1) &'
 alias haskell='cd $(ls -td -- ~/Documents/Corsola/Haskell/*/ | head -n 1)'
-# alias work='cd ~/Documents/reasoning/'
-# alias revision='cd ~/Documents/Haskell/revision/'
+alias networking='cd $(ls -td -- ~/Documents/Corsola/Networking/*/ | head -n 1)'
 
 # intelliJ
 export PATH=$PATH:~/bin
 # cabal thingy
 export PATH=$HOME/.cabal/bin:$PATH
-# alias intellij='cd /opt/idea-IU-163.11103.6/bin/ && sh idea.sh &'
 
 # networking
 # restarting network manager service

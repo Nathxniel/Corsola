@@ -14,6 +14,7 @@
 #  - wpa_supplicant
 #  - dhcpd
 #  - hostapd
+#  - nodogsplash
 
 # kill processes invoked by WAPcreate
 stop() {
@@ -26,6 +27,7 @@ stop() {
   killall wpa_supplicant
   killall dhcpd
   killall hostapd
+  killall nodogsplash
 }
 
 
@@ -36,15 +38,26 @@ show() {
   echo $(ps -e | grep wpa_supplicant)
   echo $(ps -e | grep dhcpd)
   echo $(ps -e | grep hostapd)
+  echo $(ps -e | grep nodogsplash)
 }
 
 # help
 usage() {
   echo "usage: "
   echo "call \"# ./WAPcreate.sh start [station_int] [ap_int]\" to run"
+  echo "call \"# ./WAPcreate.sh init [wireless int]\" to create soft ifaces"
   echo "call \"# ./WAPcreate.sh stop\" to stop all processes"
   echo "call \"# ./WAPcreate.sh show\" to show all processes"
   echo "call \"# ./WAPcreate.sh help\" to show this help text"
+}
+
+# update resolv.conf
+refreshDNS() {
+  if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; then
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+    echo "search lan" >> /etc/resolv.conf
+  fi
 }
 
 case "$1" in
@@ -56,7 +69,21 @@ case "$1" in
     stop
     exit 0
     ;;
-  start)
+  init)
+    if [ -z $2 ]; then
+      usage
+      exit 1;
+    fi
+    wirelesscard=$2
+
+    # software interfaces (manual instructions shown below)
+    iw dev $wirelesscard interface add "$wirelesscard"_sta type managed
+    iw dev $wirelesscard interface add "$wirelesscard"_ap type managed
+    exit 0
+    ;;
+  refresh)
+    refreshDNS
+    exit 0
     ;;
   debug)
     # move this code block around if u need it lol
@@ -66,13 +93,16 @@ case "$1" in
     #   exit 1;
     # fi
     ;;
+  start)
+    ;;
   *)
     usage
     exit 1
     ;;
 esac
 
-# main functionality (start)
+# Script to start wireless hotspot with internet access:
+
 if [ -z $2 ] || [ -z $3 ]; then
   usage
   exit 1;
@@ -81,9 +111,8 @@ fi
 station=$2
 ap=$3
 
-# Script to create wireless hotspot with internet access:
-
 # [ ] PRE: Wi-Fi Station and AP interfaces are available
+#  - (use ./WAPcreate init)
 #  - software versions can be created using:
 #     # iw dev wlan0 interface add wlan0_sta type managed
 #     # iw dev wlan0 interface add wlan0_ap type managed
@@ -134,7 +163,7 @@ service network-manager stop
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  2 - configure network devices
 #   2.1 - bring DOWN all wireless interfaces
-#         (TODO: only bring down wireless interfaces)`
+#         (TODO: only bring down wireless interfaces)
 ip link set group default down
 #   2.2 - bring the STATION interface to be used UP
 ip link set $station up
@@ -153,7 +182,6 @@ echo "  address 10.0.10.1" >> /etc/network/interfaces
 echo "  netmask 255.255.255.0" >> /etc/network/interfaces
 #   3.2 - restart networking
 service networking restart
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -167,11 +195,7 @@ sleep 5
 #   4.3 - potentially manually write to resolv.conf 
 #         (zeroConf mnds issues)
 #         (TODO: generalise, current solution is hacky)
-if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; then
-  echo "nameserver 8.8.8.8" > /etc/resolv.conf
-  echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-  echo "search lan" >> /etc/resolv.conf
-fi
+refreshDNS
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -200,11 +224,13 @@ sysctl -w net.ipv4.ip_forward=1
 #   7.1 - start host access point daemon
 hostapd /etc/hostapd/hostapd.conf &
 sleep 5
+ip link show up
 #   7.2 - start dhcp server side daemon
-#         (TODO: hostapd can up ap interface but 'ip' cant. why?)
 dhcpd -d $ap &
 sleep 5
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# 8 - start nodogsplash
+cd && ./Downloads/nodogsplash-1.0.2/nodogsplash
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

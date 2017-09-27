@@ -90,7 +90,7 @@ bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
 
 # focus the child container
-#bindsym $mod+d focus child
+bindsym $mod+z focus child
 
 set $1 1
 set $2 2
@@ -149,7 +149,7 @@ bindsym $mod+Shift+e exec ~/Documents/Corsola/Config/myi3Config/exitbar.sh
 # background
 exec_always feh --bg-scale ~/Pictures/teamRocket.png
 
-# internet F F S
+# internet
 exec --no-startup-id nm-applet
 
 # resize window (you can also use the mouse for that)
@@ -185,14 +185,14 @@ bar {
         tray_output primary
 }
 
-# Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% 
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% 
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+# amixer audio controls
+bindsym XF86AudioRaiseVolume exec "amixer -q sset Master,0 5%+ unmute"
+bindsym XF86AudioLowerVolume exec "amixer -q sset Master,0 5%- unmute"
+bindsym XF86AudioMute exec "amixer -q sset Master,0 toggle"
 
 # Light controls
-bindsym XF86MonBrightnessUp exec --no-startup-id bash "a"
-bindsym XF86MonBrightnessDown exec --no-startup-id bash "u"
+bindsym XF86MonBrightnessUp exec "light -A 5%"
+bindsym XF86MonBrightnessDown exec "light -U 5%"
 
 # Media player controls
 bindsym XF86AudioPlay exec playerctl play
