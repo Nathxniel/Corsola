@@ -19,7 +19,7 @@
 # kill processes invoked by WAPcreate
 stop() {
   if ! [ -z "$(ps -e | grep NetworkManager)" ]; then
-    echo "Error: NetworkManager appears to be running"
+    1>&2 echo "Error: NetworkManager appears to be running"
     exit 1;
   fi
   echo "killing all processes"
@@ -43,12 +43,12 @@ show() {
 
 # help
 usage() {
-  echo "usage: "
-  echo "call \"# ./WAPcreate.sh start [station_int] [ap_int]\" to run"
-  echo "call \"# ./WAPcreate.sh init [wireless int]\" to create soft ifaces"
-  echo "call \"# ./WAPcreate.sh stop\" to stop all processes"
-  echo "call \"# ./WAPcreate.sh show\" to show all processes"
-  echo "call \"# ./WAPcreate.sh help\" to show this help text"
+  1>&2 echo "usage: "
+  1>&2 echo "call \"# ./WAPcreate.sh start [station_int] [ap_int]\" to run"
+  1>&2 echo "call \"# ./WAPcreate.sh init [wireless int]\" to create soft ifaces"
+  1>&2 echo "call \"# ./WAPcreate.sh stop\" to stop all processes"
+  1>&2 echo "call \"# ./WAPcreate.sh show\" to show all processes"
+  1>&2 echo "call \"# ./WAPcreate.sh help\" to show this help text"
 }
 
 # update resolv.conf
