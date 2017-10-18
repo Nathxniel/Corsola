@@ -1,7 +1,62 @@
+set nocompatible
+filetype off
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+
+"add plugins here"
+Plugin 'editorconfig/editorconfig-vim'
+Bundle 'Tabular'
+
+
+call vundle#end()
+filetype plugin indent on
+
+
+noremap ;; :%s:::g<Left><Left><Left>
+noremap ;' :%s:::cg<Left><Left><Left><Left>
+
+"the bullshit :Wq and :W when saving issue"
+command Wq wq
+command W  w
+
+"the bullshit change split focus issue"
+nmap <S-Left>  <C-w>h
+nmap <S-right> <C-w>l
+nmap <S-up>    <C-w>k
+nmap <S-down>  <C-w>j
+
+"the bullshit Ctrl-Space issue"
+imap <Nul> <Space>
+map  <Nul> <Space>
+vmap <Nul> <Space>
+cmap <Nul> <Space>
+nmap <Nul> <Space>
+
+"the bullshit placement of PgUp and PgDn on thinkpad issue"
+imap <PageUp>   <Nop>
+imap <PageDown> <Nop>
+nmap <PageUp>   <Nop>
+nmap <PageDown> <Nop>
+vmap <PageUp>   <Nop>
+vmap <PageDown> <Nop>
+
+"swap lines"
+nmap <M-Down> mz:m+<cr>`z
+nmap <M-Up>   mz:m-2<cr>`z
+vmap <M-Down> :m'>+<cr>`<my`>mzgv`yo`z
+vmap <M-Up>   :m'<-2<cr>`>my`<mzgv`yo`z
+
+"standard tab settings"
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set expandtab
 
+"standard number and relative number settings"
 set number
 set rnu
+
+"universal paste"
+set clipboard=unnamedplus
