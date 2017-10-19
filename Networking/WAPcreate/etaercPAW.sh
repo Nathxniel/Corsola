@@ -1,14 +1,15 @@
 # WAPcreate undo-er
 # TODO: generalise
 
-# down all wireless interfaces
-ip link set group default down
+# delete all wireless interfaces
+iw dev wlp3s0_sta del
+iw dev wlp3s0_ap del
 
 # up standard wireless interface
 ip link set wlp3s0 up
 
 # revert network interfaces file
-cat defaultInterfaces > /etc/network/interfaces
+cat resources/defaultInterfaces > /etc/network/interfaces
 
 # start network manager
 service network-manager start

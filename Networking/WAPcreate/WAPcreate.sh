@@ -10,35 +10,49 @@
 ########################################################### 
 
 # dependancies:
-#  - dhclient
-#  - wpa_supplicant
-#  - dhcpd
-#  - hostapd
-#  - nodogsplash
+#  - dhclient; Dynamic Host Configuration Protocol Client
+#  - wpa_supplicant; Wi-Fi PA client and IEEE 802.1X supplicant
+#  - dhcpd; Dynamic Host Configuration Protocol Server
+#  - hostapd; IEEE 802.1X authenticator and Access Point
+#  - nodogsplash; Wi-Fi access point captive portal
+#  - dnsmasq; DHCP and chaching DNS server
+
+# notes:
+#  - configured around to run around NetworkManager
+#  - if another network manager is used, vital processes may be killed
+
 
 # kill processes invoked by WAPcreate
+# NOTE: dnsmasq is not stopped; NetworkManager keeps it running
 stop() {
   if ! [ -z "$(ps -e | grep NetworkManager)" ]; then
     1>&2 echo "Error: NetworkManager appears to be running"
     exit 1;
   fi
   echo "killing all processes"
-  killall dhclient
-  killall wpa_supplicant
-  killall dhcpd
-  killall hostapd
-  killall nodogsplash
+  #TODO: kill based on pid (run processes with "pid file" option)
+  >&1 killall dhclient
+  >&1 killall wpa_supplicant
+  >&1 killall dhcpd
+  >&1 killall hostapd
+  >&1 killall nodogsplash
 }
-
 
 # show processes invoked by WAPcreate
 show() {
-  echo "showing current processes"
-  echo $(ps -e | grep dhclient)
-  echo $(ps -e | grep wpa_supplicant)
-  echo $(ps -e | grep dhcpd)
-  echo $(ps -e | grep hostapd)
-  echo $(ps -e | grep nodogsplash)
+  if ! [ -z "$(ps -e | grep NetworkManager)" ]; then
+    1>&2 echo "NOTE: NetworkManager is running\n"
+  fi
+
+  echo "Showing current procceses:"
+  for proc in dnsmasq dhclient wpa_supplicant \
+    dhcpd hostapd nodogsplash; do
+
+    printline=$(ps -e | grep $proc)
+    if [ -z "$printline" ]; then
+      echo $proc is not running; else echo $printline; 
+    fi
+  done
 }
 
 # help
@@ -53,14 +67,35 @@ usage() {
 
 # update resolv.conf
 refreshDNS() {
-  if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; then
+  if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; 
+  then
     echo "nameserver 8.8.8.8" > /etc/resolv.conf
     echo "nameserver 8.8.4.4" >> /etc/resolv.conf
     echo "search lan" >> /etc/resolv.conf
   fi
 }
 
+init() {
+    if [ -z $1 ]; then
+      usage
+      exit 1;
+    fi
+    wirelesscard=$1
+
+    # software interfaces (manual instructions shown below)
+    iw dev $wirelesscard interface add \
+      "$wirelesscard"_sta type managed
+    iw dev $wirelesscard interface add \
+      "$wirelesscard"_ap type managed
+
+    ip link show
+}
+
 case "$1" in
+  init)
+    init $2
+    exit 0
+    ;;
   show)
     show
     exit 0
@@ -69,29 +104,9 @@ case "$1" in
     stop
     exit 0
     ;;
-  init)
-    if [ -z $2 ]; then
-      usage
-      exit 1;
-    fi
-    wirelesscard=$2
-
-    # software interfaces (manual instructions shown below)
-    iw dev $wirelesscard interface add "$wirelesscard"_sta type managed
-    iw dev $wirelesscard interface add "$wirelesscard"_ap type managed
-    exit 0
-    ;;
   refresh)
     refreshDNS
     exit 0
-    ;;
-  debug)
-    # move this code block around if u need it lol
-    #
-    # if [ "$1" = 'debug' ]; then
-    #   echo "!!!!!!!!!!!!STOPPING (debug)!!!!!!!!!!!!"
-    #   exit 1;
-    # fi
     ;;
   start)
     ;;
@@ -103,13 +118,26 @@ esac
 
 # Script to start wireless hotspot with internet access:
 
-if [ -z $2 ] || [ -z $3 ]; then
+if [ -z $2 ]; then
   usage
   exit 1;
 fi
 
-station=$2
-ap=$3
+if [ -z $3 ]; then
+  if [ $(ip link show | grep -c $2) -ge 3 ]; then init $2; fi
+  echo "DONE";
+  #station=$2_sta
+  #ap=$2_ap
+else
+  #station=$2
+  #ap=$3;
+  echo else;
+fi
+
+exit 0;
+
+# [ ] PRE: NetworkManager has been stopped
+#  - or any other network manager (e.g. Wicd)
 
 # [ ] PRE: Wi-Fi Station and AP interfaces are available
 #  - (use ./WAPcreate init)
@@ -140,6 +168,7 @@ ap=$3
 #      ...
 
 # [ ] PRE: dhcp server daemon configuration file has been set
+#  - (IMPORTANT NOTE (ubuntu): apparmor for dhcpd must be REMOVED)
 #  - /etc/dhcp/dhcpd.conf
 #     ...
 #       authoritative;
@@ -175,7 +204,7 @@ ip link set $station up
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  3 - give access point static ip
 #   3.1 - edit /etc/network/interfaces
-cat ./defaultInterfaces > /etc/network/interfaces
+cat ./resources/defaultInterfaces > /etc/network/interfaces
 echo >> /etc/network/interfaces
 echo "# static access point address (by WAPcreate)" \
   >> /etc/network/interfaces
@@ -190,14 +219,12 @@ service networking restart
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  4 - connect to wifi on STATION
 #   4.1 - start dhcp client 
-dhclient -d -v $station &
+dhclient -d -v -cf "./conf/dhclient.conf" $station &
 sleep 5
 #   4.2 - start wpa_supplicant
 wpa_supplicant -i$station -c/etc/wpa_supplicant/wpa_supplicant.conf &
 sleep 5
 #   4.3 - potentially manually write to resolv.conf 
-#         (zeroConf mnds issues; resolv.conf is not written to)
-#         (TODO: create service, current solution is hacky)
 refreshDNS
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -225,15 +252,18 @@ sysctl -w net.ipv4.ip_forward=1
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  7 - create ACCESS POINT
 #   7.1 - start host access point daemon
-hostapd /etc/hostapd/hostapd.conf &
+hostapd ./conf/hostapd.conf &
 sleep 5
 ip link show up
 #   7.2 - start dhcp server side daemon
-dhcpd -d $ap &
+dhcpd -d -cf "./conf/dhcpd.conf" $ap &
 sleep 5
+#   7.3 - start dns server
+dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
+  --pid-file="./resources/dnsmasq.pid" &
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # 8 - start nodogsplash
-nodogsplash
+#nodogsplash
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
