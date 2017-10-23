@@ -1,0 +1,6 @@
+REPLACE (SHITTY) DHCPD WITH DNSMASQ
+
+
+change dnsmasq
+change put dns server on wlp3s0_ap @ 10.0.10.1/24
+put http server on     wlp3s0_http @ 10.0.10.2/24

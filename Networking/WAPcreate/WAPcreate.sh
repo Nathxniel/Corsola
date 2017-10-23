@@ -12,10 +12,9 @@
 # dependancies:
 #  - dhclient; Dynamic Host Configuration Protocol Client
 #  - wpa_supplicant; Wi-Fi PA client and IEEE 802.1X supplicant
-#  - dhcpd; Dynamic Host Configuration Protocol Server
+#  - dnsmasq; DHCP and chaching DNS server
 #  - hostapd; IEEE 802.1X authenticator and Access Point
 #  - nodogsplash; Wi-Fi access point captive portal
-#  - dnsmasq; DHCP and chaching DNS server
 
 # notes:
 #  - configured around to run around NetworkManager
@@ -23,19 +22,21 @@
 
 
 # kill processes invoked by WAPcreate
-# NOTE: dnsmasq is not stopped; NetworkManager keeps it running
 stop() {
   if ! [ -z "$(ps -e | grep NetworkManager)" ]; then
     1>&2 echo "Error: NetworkManager appears to be running"
     exit 1;
   fi
+  if ! [ -z "$(ps -e | grep Wicd)" ]; then
+    1>&2 echo "Error: Wicd appears to be running"
+    exit 1;
+  fi
   echo "killing all processes"
-  #TODO: kill based on pid (run processes with "pid file" option)
-  >&1 killall dhclient
-  >&1 killall wpa_supplicant
-  >&1 killall dhcpd
-  >&1 killall hostapd
-  >&1 killall nodogsplash
+  >/dev/null killall dnsmasq
+  >/dev/null killall dhclient
+  >/dev/null killall wpa_supplicant
+  >/dev/null killall hostapd
+  >/dev/null killall nodogsplash
 }
 
 # show processes invoked by WAPcreate
@@ -43,11 +44,12 @@ show() {
   if ! [ -z "$(ps -e | grep NetworkManager)" ]; then
     1>&2 echo "NOTE: NetworkManager is running\n"
   fi
+  if ! [ -z "$(ps -e | grep Wicd)" ]; then
+    1>&2 echo "NOTE: Wicd is running"
+  fi
 
   echo "Showing current procceses:"
-  for proc in dnsmasq dhclient wpa_supplicant \
-    dhcpd hostapd nodogsplash; do
-
+  for proc in dnsmasq dhclient wpa_supplicant hostapd nodogsplash; do
     printline=$(ps -e | grep $proc)
     if [ -z "$printline" ]; then
       echo $proc is not running; else echo $printline; 
@@ -66,6 +68,7 @@ usage() {
 }
 
 # update resolv.conf
+# TODO: make redundant
 refreshDNS() {
   if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; 
   then
@@ -104,6 +107,7 @@ case "$1" in
     stop
     exit 0
     ;;
+  #TODO: make redundant
   refresh)
     refreshDNS
     exit 0
@@ -123,23 +127,26 @@ if [ -z $2 ]; then
   exit 1;
 fi
 
+station=
+ap=
+minfaces=3
+
 if [ -z $3 ]; then
-  if [ $(ip link show | grep -c $2) -ge 3 ]; then init $2; fi
-  echo "DONE";
-  #station=$2_sta
-  #ap=$2_ap
+  if [ $(ip link show | grep -c $2) -lt $minfaces ]; then init $2; fi
+  station=$2_sta
+  ap=$2_ap
 else
-  #station=$2
-  #ap=$3;
-  echo else;
+  station=$2
+  ap=$3;
 fi
 
-exit 0;
+echo "STATION = $station"
+echo "AP      = $ap"
 
 # [ ] PRE: NetworkManager has been stopped
 #  - or any other network manager (e.g. Wicd)
 
-# [ ] PRE: Wi-Fi Station and AP interfaces are available
+# [X] PRE: Wi-Fi Station and AP interfaces are available
 #  - (use ./WAPcreate init)
 #  - software versions can be created using:
 #     # iw dev wlan0 interface add wlan0_sta type managed
@@ -153,30 +160,12 @@ exit 0;
 #       }
 #      ...
 
-# [ ] PRE: supersede dns in dhclient
+# [X] PRE: supersede dns in dhclient
 #  - /etc/dhcp/dhclient.conf
 #     ...
 #       #supersede domain-name "fugue.com ...
 #       supersede domain-name-servers 127.0.0.1, 8.8.8.8;
 #       #require ...
-#      ...
-
-# [ ] PRE: hostapd configuration file has been set
-#  - /etc/hostapd/hostapd.conf
-#     ...
-#       ssid=...
-#      ...
-
-# [ ] PRE: dhcp server daemon configuration file has been set
-#  - (IMPORTANT NOTE (ubuntu): apparmor for dhcpd must be REMOVED)
-#  - /etc/dhcp/dhcpd.conf
-#     ...
-#       authoritative;
-#     ...
-#       subnet ... {
-#         ...
-#         interface wlan0_ap;
-#       }
 #      ...
 
 # [ ] PRE: nodogsplash is installed and config is set
@@ -191,6 +180,7 @@ exit 0;
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  1 - stop the network manager service
 service network-manager stop
+>/dev/null stop
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -212,7 +202,7 @@ echo "auto $ap" >> /etc/network/interfaces
 echo "iface $ap inet static" >> /etc/network/interfaces
 echo "  address 10.0.10.1" >> /etc/network/interfaces
 echo "  netmask 255.255.255.0" >> /etc/network/interfaces
-#   3.2 - restart networking
+#   3.2 - restart networking (sometimes necessary)
 service networking restart
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -224,8 +214,9 @@ sleep 5
 #   4.2 - start wpa_supplicant
 wpa_supplicant -i$station -c/etc/wpa_supplicant/wpa_supplicant.conf &
 sleep 5
+# TODO: make redundant
 #   4.3 - potentially manually write to resolv.conf 
-refreshDNS
+#refreshDNS
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -255,10 +246,7 @@ sysctl -w net.ipv4.ip_forward=1
 hostapd ./conf/hostapd.conf &
 sleep 5
 ip link show up
-#   7.2 - start dhcp server side daemon
-dhcpd -d -cf "./conf/dhcpd.conf" $ap &
-sleep 5
-#   7.3 - start dns server
+#   7.2 - start dns server and dhcp server
 dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
   --pid-file="./resources/dnsmasq.pid" &
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
