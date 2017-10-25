@@ -48,6 +48,7 @@ updateDisplay :: Entry -> Value -> IO ()
 updateDisplay display value =
   set display [ entryText := renderValue value ]
 
+-- | Create button object
 mkButton
   :: IORef Value       
   -> Entry             
@@ -110,6 +111,7 @@ clearEntry (Value x action) =
 clearAll :: Value -> Value
 clearAll = const (Value "" Nothing)
 
+-- | Read a real number literal
 readValueNumber :: String -> Double
 readValueNumber ""       = 0
 readValueNumber ('.':xs) = readValueNumber ('0':'.':xs)
