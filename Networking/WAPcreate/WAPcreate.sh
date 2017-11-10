@@ -70,12 +70,14 @@ usage() {
 # update resolv.conf
 # TODO: make redundant
 refreshDNS() {
-  if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; 
-  then
-    echo "nameserver 8.8.8.8" > /etc/resolv.conf
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-    echo "search lan" >> /etc/resolv.conf
-  fi
+  #if [ -z "$(cat /etc/resolv.conf | grep "nameserver 8.8.8.8")" ]; 
+  #then
+  #  echo "nameserver 8.8.8.8" > /etc/resolv.conf
+  #  echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+  #  echo "search lan" >> /etc/resolv.conf
+  #fi
+  echo "search fuck.me"
+  echo "nameserver 10.0.10.1"
 }
 
 init() {
@@ -202,6 +204,7 @@ echo "auto $ap" >> /etc/network/interfaces
 echo "iface $ap inet static" >> /etc/network/interfaces
 echo "  address 10.0.10.1" >> /etc/network/interfaces
 echo "  netmask 255.255.255.0" >> /etc/network/interfaces
+
 #   3.2 - restart networking (sometimes necessary)
 service networking restart
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -214,9 +217,11 @@ sleep 5
 #   4.2 - start wpa_supplicant
 wpa_supplicant -i$station -c/etc/wpa_supplicant/wpa_supplicant.conf &
 sleep 5
-# TODO: make redundant
+# TODO (CURRENTLY): 
+# - im writing to resolv.conf to use my nameserver as a client
+# - this is potentially un-needed
 #   4.3 - potentially manually write to resolv.conf 
-#refreshDNS
+refreshDNS
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -254,4 +259,12 @@ dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # 8 - start nodogsplash
 #nodogsplash
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# 9 - fucking around
+echo "!!!!!!!!!!!!!!THIS IS THE NAMED SECTION!!!!!!!!!!!!!!"
+#named -f -d 5
+service bind9 restart
+
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
