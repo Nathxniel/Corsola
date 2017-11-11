@@ -37,6 +37,8 @@ stop() {
   >/dev/null killall wpa_supplicant
   >/dev/null killall hostapd
   >/dev/null killall nodogsplash
+
+  service bind9 stop
 }
 
 # show processes invoked by WAPcreate
@@ -76,8 +78,9 @@ refreshDNS() {
   #  echo "nameserver 8.8.4.4" >> /etc/resolv.conf
   #  echo "search lan" >> /etc/resolv.conf
   #fi
-  echo "search fuck.me"
-  echo "nameserver 10.0.10.1"
+  echo "search fuck.me" > /etc/resolv.conf
+  echo "nameserver 10.0.10.1" >> /etc/resolv.conf
+  echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 }
 
 init() {
@@ -199,11 +202,17 @@ ip link set $station up
 cat ./resources/defaultInterfaces > /etc/network/interfaces
 echo >> /etc/network/interfaces
 echo "# static access point address (by WAPcreate)" \
-  >> /etc/network/interfaces
-echo "auto $ap" >> /etc/network/interfaces
-echo "iface $ap inet static" >> /etc/network/interfaces
-echo "  address 10.0.10.1" >> /etc/network/interfaces
+                               >> /etc/network/interfaces
+echo "auto $ap"                >> /etc/network/interfaces
+echo "iface $ap inet static"   >> /etc/network/interfaces
+echo "  address 10.0.10.1"     >> /etc/network/interfaces
 echo "  netmask 255.255.255.0" >> /etc/network/interfaces
+
+# dns
+echo ""                                    >> /etc/network/interfaces
+echo "auto $sta"                           >> /etc/network/interfaces
+echo "iface $sta inet dhcp"                >> /etc/network/interfaces
+echo "  dns-nameservers 10.0.10.1 8.8.8.8" >> /etc/network/interfaces
 
 #   3.2 - restart networking (sometimes necessary)
 service networking restart
@@ -221,7 +230,7 @@ sleep 5
 # - im writing to resolv.conf to use my nameserver as a client
 # - this is potentially un-needed
 #   4.3 - potentially manually write to resolv.conf 
-refreshDNS
+#refreshDNS
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -264,7 +273,5 @@ dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # 9 - fucking around
 echo "!!!!!!!!!!!!!!THIS IS THE NAMED SECTION!!!!!!!!!!!!!!"
-#named -f -d 5
 service bind9 restart
-
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

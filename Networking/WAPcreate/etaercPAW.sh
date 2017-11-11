@@ -18,9 +18,6 @@ ip link set wlp3s0 up
 # revert network interfaces file
 cat resources/defaultInterfaces > /etc/network/interfaces
 
-# stop bind service
-service bind9 stop
-
 # start network manager
 service network-manager start
 sleep 5
