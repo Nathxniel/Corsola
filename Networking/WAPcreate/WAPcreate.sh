@@ -37,8 +37,6 @@ stop() {
   >/dev/null killall wpa_supplicant
   >/dev/null killall hostapd
   >/dev/null killall nodogsplash
-
-  service bind9 stop
 }
 
 # show processes invoked by WAPcreate
@@ -184,7 +182,7 @@ echo "AP      = $ap"
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #  1 - stop the network manager service
-service network-manager stop
+systemctl stop network-manager.service
 >/dev/null stop
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -208,14 +206,14 @@ echo "iface $ap inet static"   >> /etc/network/interfaces
 echo "  address 10.0.10.1"     >> /etc/network/interfaces
 echo "  netmask 255.255.255.0" >> /etc/network/interfaces
 
-# dns
-echo ""                                    >> /etc/network/interfaces
-echo "auto $sta"                           >> /etc/network/interfaces
-echo "iface $sta inet dhcp"                >> /etc/network/interfaces
-echo "  dns-nameservers 10.0.10.1 8.8.8.8" >> /etc/network/interfaces
+## dns - test to see if manually adding our server works
+#echo ""                            >> /etc/network/interfaces
+#echo "auto $station"               >> /etc/network/interfaces
+#echo "iface $station inet dhcp"    >> /etc/network/interfaces
+#echo "  dns-nameservers 127.0.0.1" >> /etc/network/interfaces
 
 #   3.2 - restart networking (sometimes necessary)
-service networking restart
+systemctl restart networking.service
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -273,5 +271,5 @@ dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # 9 - fucking around
 echo "!!!!!!!!!!!!!!THIS IS THE NAMED SECTION!!!!!!!!!!!!!!"
-service bind9 restart
+systemctl restart bind9.service
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
