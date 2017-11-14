@@ -77,8 +77,8 @@ refreshDNS() {
   #  echo "search lan" >> /etc/resolv.conf
   #fi
   echo "search fuck.me" > /etc/resolv.conf
-  echo "nameserver 10.0.10.1" >> /etc/resolv.conf
-  echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+  echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+  #echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 }
 
 init() {
