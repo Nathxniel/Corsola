@@ -1,6 +1,41 @@
-REPLACE (SHITTY) DHCPD WITH DNSMASQ
+REPLACE (LIGHTWEIGHT) DNSMASQ WITH BIND
 
 
-change dnsmasq
+test2:
+  edit bind to listen on loopback (127.0.0.1)
+
+test3:
+  edit bind to listen on loopback (127.0.0.1) AND
+  have dnsmasq forward queries to loopback
+
+
+
+configure bind
 change put dns server on wlp3s0_ap @ 10.0.10.1/24
 put http server on     wlp3s0_http @ 10.0.10.2/24
+
+1. change dnsmasq to not serve dns requests
+2. get bind working 
+
+#  1 - stop the network manager service
+#  2 - configure network devices
+#   2.1 - bring DOWN all wireless interfaces
+#   2.2 - bring UP the STATION interface to be used
+#  3 - give access point static ip
+#   3.1 - edit /etc/network/interfaces
+#   3.2 - restart networking (sometimes necessary)
+#  4 - connect to wifi on STATION
+#   4.1 - start dhcp client 
+#   4.2 - start wpa_supplicant
+#   4.3 - potentially manually write to resolv.conf (sad face)
+#  5 - create NAT rules
+#   -F : flush
+#   -t : table
+#   -X : delete-chain
+#   -A : append
+#   -o : out-interface
+#   -i : in-interface
+#  6 - allow ip forwarding
+#  7 - create ACCESS POINT
+#   7.1 - start host access point daemon
+#   7.2 - start dns server and dhcp server
