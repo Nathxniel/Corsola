@@ -1,3 +1,4 @@
 *.o
+*.odt
 Haskell/gtk/calculator/dist/
 
