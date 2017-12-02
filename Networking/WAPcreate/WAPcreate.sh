@@ -76,8 +76,9 @@ refreshDNS() {
   #  echo "nameserver 8.8.4.4" >> /etc/resolv.conf
   #  echo "search lan" >> /etc/resolv.conf
   #fi
-  echo "search fuck.me" > /etc/resolv.conf
-  echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+  echo not implemented
+  #echo "search fuck.me" > /etc/resolv.conf
+  #echo "nameserver 127.0.0.1" >> /etc/resolv.conf
   #echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 }
 
@@ -239,6 +240,7 @@ sleep 5
 #   -A : append
 #   -o : out-interface
 #   -i : in-interface
+#   -j : (jump) target of rule
 iptables -F
 iptables -t nat -F
 iptables -X
@@ -270,6 +272,5 @@ dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # 9 - fucking around
-echo "!!!!!!!!!!!!!!THIS IS THE NAMED SECTION!!!!!!!!!!!!!!"
-systemctl restart bind9.service
+#systemctl restart bind9.service
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
