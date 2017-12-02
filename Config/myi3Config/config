@@ -92,6 +92,7 @@ bindsym $mod+a focus parent
 # focus the child container
 bindsym $mod+z focus child
 
+# workspace management
 set $1 1
 set $2 2
 set $3 3
@@ -101,11 +102,11 @@ set $6 6
 set $7 7
 set $8 8
 set $9 9
-set $work work
+set $work uni
 set $info info
 set $X terminals
-set $fun hackerrank
-set $procrastination ass
+set $fun ppp
+set $procrastination lol
 
 # switch to workspace
 bindsym $mod+1 workspace $1

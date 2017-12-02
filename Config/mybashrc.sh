@@ -1,5 +1,14 @@
-#NOTES
-#echo "the mamas and the papas"
+###############################################################
+#                                                             #
+#                                                             #
+#                                                             #
+#                                                             #
+#                     NATHANIEL BASHRC                        #
+#                                                             #
+#                                                             #
+#                                                             #
+#                                                             #
+###############################################################
 
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
@@ -143,7 +152,16 @@ alias networking='cd $(ls -td -- ~/Documents/Corsola/Networking/*/ | head -n 1)'
 export PATH=$PATH:~/bin
 # cabal thingy
 export PATH=$HOME/.cabal/bin:$PATH
+# ranger
+export RANGER_LOAD_DEFAULT_RC=FALSE
 
 # networking
 # restarting network manager service
 alias connect='sudo service network-manager restart'
+
+# echo "the mamas and the papas"
+settings
+if ! [ -z "$(diff ./myi3Config/config ~/.config/i3/config)" ]; then
+  cp ./myi3Config/config ~/.config/i3/config
+fi
+cd /home/nathaniel
