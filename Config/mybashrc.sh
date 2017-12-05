@@ -69,9 +69,9 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='$? ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='$? ${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
 
@@ -133,18 +133,20 @@ alias c='clear'
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
 alias corsola='cd ~/Documents/Corsola/'
 alias settings='corsola && cd Config'
-alias editbash='settings && vim mybashrc.sh'
-alias editi3='settings && vim myi3Config/config'
-alias editi3bar='settings && vim myi3Config/i3status.conf'
+alias editbash='vim ~/Documents/Corsola/Config/mybashrc.sh'
+alias editi3='vim ~/Documents/Corsola/Config/myi3Config/config'
+alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
 
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
 
 # variant aliases (TODO)
+alias p='cd ppp'
+alias pp='cd $(ls -td -- ~/ppp/*/*/ | head -n 1)'
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
 alias cnow='cd $(ls -td -- ~/Documents/Corsola/*/ | head -n 1)'
 alias work='cd ~/Documents'
-alias spec='cd $(ls -td -- ~/Documents/*/ | head -n 1) && evince $(ls -t spec* | head -n 1) &'
+# alias spec='cd $(ls -td -- ~/Documents/*/ | head -n 1) && evince $(ls -t spec* | head -n 1) &'
 alias haskell='cd $(ls -td -- ~/Documents/Corsola/Haskell/*/ | head -n 1)'
 alias networking='cd $(ls -td -- ~/Documents/Corsola/Networking/*/ | head -n 1)'
 
