@@ -101,8 +101,9 @@ fi
 
 # some more ls aliases
 alias ll='ls -alF'
+alias lc='ls -CF'
 alias la='ls -A'
-alias l='ls -CF'
+alias l='la -a'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -134,15 +135,20 @@ alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
 alias corsola='cd ~/Documents/Corsola/'
 alias settings='corsola && cd Config'
 alias editbash='vim ~/Documents/Corsola/Config/mybashrc.sh'
+alias update='. ~/.profile'
 alias editi3='vim ~/Documents/Corsola/Config/myi3Config/config'
 alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
 
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
 
-# variant aliases (TODO)
-alias p='cd ppp'
-alias pp='cd $(ls -td -- ~/ppp/*/*/ | head -n 1)'
+# p
+alias p='cd ~/ppp'
+alias pp='cd $(ls -td -- ~/ppp/*/ | head -n 1)'
+alias strat='cd ~/ppp/people/src && vim ../exe/STRATEGY.md'
+alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
+
+# Documents
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
 alias cnow='cd $(ls -td -- ~/Documents/Corsola/*/ | head -n 1)'
 alias work='cd ~/Documents'
