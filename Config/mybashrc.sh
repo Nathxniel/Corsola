@@ -144,9 +144,47 @@ alias psc='ps xawf -eo pid,user,cgroup,args'
 
 # p
 alias p='cd ~/ppp'
-alias pp='cd $(ls -td -- ~/ppp/*/ | head -n 1)'
+# alias pp='cd $(ls -td -- ~/ppp/*/ | head -n 1)'
 alias strat='cd ~/ppp/people/src && vim ../exe/STRATEGY.md'
 alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
+
+function cdsnd() {
+  shift
+  cd $(dirname $1)
+}
+
+function peopl() {
+  cd ~/ppp/people
+  mr=$(find . -type f \
+              -not -path '*/dist/*' \
+              -printf "%A+ %h/%f\n" \
+    | sort -nr \
+    | head -n 1)
+  cdsnd $mr
+}
+alias peopl='peopl'
+
+function propt() {
+  cd ~/ppp/property
+  mr=$(find . -type f \
+              -not -path '*/dist/*' \
+              -printf "%A+ %h/%f\n" \
+    | sort -nr \
+    | head -n 1)
+  cdsnd $mr
+}
+alias propt='propt'
+
+function pming() {
+  cd ~/ppp/programming
+  mr=$(find . -type f \
+              -not -path '*/dist/*' \
+              -printf "%A+ %h/%f\n" \
+    | sort -nr \
+    | head -n 1)
+  cdsnd $mr
+}
+alias pming='pming'
 
 # Documents
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
