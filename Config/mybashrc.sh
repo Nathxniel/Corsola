@@ -143,49 +143,29 @@ alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
 alias psc='ps xawf -eo pid,user,cgroup,args'
 
 # p
-alias p='cd ~/ppp'
+# alias p='cd ~/ppp'
 # alias pp='cd $(ls -td -- ~/ppp/*/ | head -n 1)'
 alias strat='cd ~/ppp/people/exe && vim STRATEGY.md'
 alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
 
+# helper function for 'p';
+# parses output from find | sort | head
+# and goes to the directory from the output
 function cdsnd() {
   shift
   cd $(dirname $1)
 }
 
-function peopl() {
-  cd ~/ppp/people
-  if [ "$#" -eq "1" ]; then
-    cd $1
-  fi
-  mr=$(find . -type f \
-              -not -path '*/dist/*' \
-              -printf "%A+ %h/%f\n" \
-    | sort -nr \
-    | head -n 1)
-  cdsnd $mr
-}
-export -f peopl
+function p() {
+  cd ~/ppp
 
-function propt() {
-  cd ~/ppp/property
-  if [ "$#" -eq "1" ]; then
-    cd $1
+  if [ "$#" -gt "1" ]; then
+    # find start directory from arguments
+    for dir in $@; do
+      cd $dir;
+    done
   fi
-  mr=$(find . -type f \
-              -not -path '*/dist/*' \
-              -printf "%A+ %h/%f\n" \
-    | sort -nr \
-    | head -n 1)
-  cdsnd $mr
-}
-export -f propt
 
-function pming() {
-  cd ~/ppp/programming
-  if [ "$#" -eq "1" ]; then
-    cd $1
-  fi
   mr=$(find . -type f \
               -not -path '*/dist/*' \
               -printf "%A+ %h/%f\n" \
@@ -193,7 +173,7 @@ function pming() {
     | head -n 1)
   cdsnd $mr
 }
-export -f pming
+export -f p
 
 # Documents
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
