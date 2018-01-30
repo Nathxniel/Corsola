@@ -159,7 +159,7 @@ function cdsnd() {
 function p() {
   cd ~/ppp
 
-  if [ "$#" -gt "1" ]; then
+  if [ "$#" -ge "1" ]; then
     # find start directory from arguments
     for dir in $@; do
       cd $dir;
