@@ -145,7 +145,7 @@ alias psc='ps xawf -eo pid,user,cgroup,args'
 # p
 alias p='cd ~/ppp'
 # alias pp='cd $(ls -td -- ~/ppp/*/ | head -n 1)'
-alias strat='cd ~/ppp/people/src && vim ../exe/STRATEGY.md'
+alias strat='cd ~/ppp/people/exe && vim STRATEGY.md'
 alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
 
 function cdsnd() {
@@ -155,6 +155,9 @@ function cdsnd() {
 
 function peopl() {
   cd ~/ppp/people
+  if [ "$#" -eq "1" ]; then
+    cd $1
+  fi
   mr=$(find . -type f \
               -not -path '*/dist/*' \
               -printf "%A+ %h/%f\n" \
@@ -162,10 +165,13 @@ function peopl() {
     | head -n 1)
   cdsnd $mr
 }
-alias peopl='peopl'
+export -f peopl
 
 function propt() {
   cd ~/ppp/property
+  if [ "$#" -eq "1" ]; then
+    cd $1
+  fi
   mr=$(find . -type f \
               -not -path '*/dist/*' \
               -printf "%A+ %h/%f\n" \
@@ -173,10 +179,13 @@ function propt() {
     | head -n 1)
   cdsnd $mr
 }
-alias propt='propt'
+export -f propt
 
 function pming() {
   cd ~/ppp/programming
+  if [ "$#" -eq "1" ]; then
+    cd $1
+  fi
   mr=$(find . -type f \
               -not -path '*/dist/*' \
               -printf "%A+ %h/%f\n" \
@@ -184,10 +193,11 @@ function pming() {
     | head -n 1)
   cdsnd $mr
 }
-alias pming='pming'
+export -f pming
 
 # Documents
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
+alias mow='cd $(ls -td -- ~/Desktop/*/ | head -n 1)'
 alias cnow='cd $(ls -td -- ~/Documents/Corsola/*/ | head -n 1)'
 alias work='cd ~/Documents'
 # alias spec='cd $(ls -td -- ~/Documents/*/ | head -n 1) && evince $(ls -t spec* | head -n 1) &'
@@ -200,6 +210,11 @@ export PATH=$PATH:~/bin
 export PATH=$HOME/.cabal/bin:$PATH
 # ranger
 export RANGER_LOAD_DEFAULT_RC=FALSE
+# x86_84 cross compiler
+export PATH=$HOME/opt/cross/i386-elf-binutils/bin:$PATH
+export PATH=$HOME/opt/cross/i386-elf-gcc/bin:$PATH
+# pintos
+export PATH=$HOME/opt/pintos:$PATH
 
 # networking
 # restarting network manager service
