@@ -175,6 +175,16 @@ function p() {
 }
 export -f p
 
+function go() {
+  cd
+  if [ "$#" -ge "1" ]; then
+    # find start directory from arguments
+    for dir in $@; do
+      cd $dir;
+    done
+  fi
+}
+
 # Documents
 alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
 alias mow='cd $(ls -td -- ~/Desktop/*/ | head -n 1)'
