@@ -156,15 +156,37 @@ function cdsnd() {
   cd $(dirname $1)
 }
 
-function p() {
-  cd ~/ppp
+# goes to argument dirs, starts from home
+function go() {
+  cd
+  goto $@
+}
 
+# goes to argument dirs, starts from cwd
+function goto() {
   if [ "$#" -ge "1" ]; then
     # find start directory from arguments
     for dir in $@; do
       cd $dir;
     done
   fi
+}
+
+# goes to most recent, starts from home
+function now() {
+  go $@
+  
+  mr=$(find . -type f \
+              -printf "%A+ %h/%f\n" \
+    | sort -nr \
+    | head -n 1)
+  cdsnd $mr
+}
+
+# goes to most recent, starts from ppp
+function p() {
+  cd ~/ppp
+  goto $@
 
   mr=$(find . -type f \
               -not -path '*/dist/*' \
@@ -173,24 +195,13 @@ function p() {
     | head -n 1)
   cdsnd $mr
 }
+
+export -f go
+export -f goto
+export -f now
 export -f p
 
-function go() {
-  cd
-  if [ "$#" -ge "1" ]; then
-    # find start directory from arguments
-    for dir in $@; do
-      cd $dir;
-    done
-  fi
-}
-
 # Documents
-alias now='cd $(ls -td -- ~/Documents/*/ | head -n 1)'
-alias mow='cd $(ls -td -- ~/Desktop/*/ | head -n 1)'
-alias cnow='cd $(ls -td -- ~/Documents/Corsola/*/ | head -n 1)'
-alias work='cd ~/Documents'
-# alias spec='cd $(ls -td -- ~/Documents/*/ | head -n 1) && evince $(ls -t spec* | head -n 1) &'
 alias haskell='cd $(ls -td -- ~/Documents/Corsola/Haskell/*/ | head -n 1)'
 alias networking='cd $(ls -td -- ~/Documents/Corsola/Networking/*/ | head -n 1)'
 
