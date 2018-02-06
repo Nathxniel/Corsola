@@ -140,20 +140,6 @@ alias editbash='vim ~/Documents/Corsola/Config/mybashrc.sh'
 alias update='. ~/.profile'
 alias editi3='vim ~/Documents/Corsola/Config/myi3Config/config'
 alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
-function editwebsite() {
-  go ppp
-  git checkout gh-pages
-}
-export -f editwebsite
-
-function pushwebsite() {
-  # PRE: you have just finished editing website
-  go ppp
-  git add *
-  git commit -m "$1"
-  git push origin gh-pages
-}
-export -f pushwebsite
 
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
