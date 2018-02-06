@@ -140,6 +140,7 @@ alias editbash='vim ~/Documents/Corsola/Config/mybashrc.sh'
 alias update='. ~/.profile'
 alias editi3='vim ~/Documents/Corsola/Config/myi3Config/config'
 alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
+alias editwebsite='cd ~/web'
 
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
