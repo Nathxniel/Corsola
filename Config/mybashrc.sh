@@ -134,17 +134,31 @@ alias c='clear'
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
 alias corsola='cd ~/Documents/Corsola/'
 alias settings='corsola && cd Config'
+
+# editing configs/files
 alias editbash='vim ~/Documents/Corsola/Config/mybashrc.sh'
 alias update='. ~/.profile'
 alias editi3='vim ~/Documents/Corsola/Config/myi3Config/config'
 alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
+function editwebsite() {
+  go ppp
+  git checkout gh-pages
+}
+export -f editwebsite
+
+function pushwebsite() {
+  # PRE: you have just finished editing website
+  go ppp
+  git add *
+  git commit -m "$1"
+  git push origin gh-pages
+}
+export -f pushwebsite
 
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
 
 # p
-# alias p='cd ~/ppp'
-# alias pp='cd $(ls -td -- ~/ppp/*/ | head -n 1)'
 alias strat='cd ~/ppp/people/exe && vim STRATEGY.md'
 alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
 
@@ -165,7 +179,6 @@ function go() {
 # goes to argument dirs, starts from cwd
 function goto() {
   if [ "$#" -ge "1" ]; then
-    # find start directory from arguments
     for dir in $@; do
       cd $dir;
     done
@@ -174,9 +187,14 @@ function goto() {
 
 # goes to most recent, starts from home
 function now() {
-  go $@
+  if [ "$#" -eq "0" ]; then
+    cd $(ls -td -- ~/*/ | head -n 1)
+  else
+    go $@
+  fi
   
   mr=$(find . -type f \
+              -not -path '*/.git/*' \
               -printf "%A+ %h/%f\n" \
     | sort -nr \
     | head -n 1)
@@ -202,8 +220,8 @@ export -f now
 export -f p
 
 # Documents
-alias haskell='cd $(ls -td -- ~/Documents/Corsola/Haskell/*/ | head -n 1)'
-alias networking='cd $(ls -td -- ~/Documents/Corsola/Networking/*/ | head -n 1)'
+alias haskell='now Documents Corsola Haskell'
+alias networking='now Documents Corsola Networking'
 
 # intelliJ
 export PATH=$PATH:~/bin
