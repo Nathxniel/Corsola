@@ -225,6 +225,8 @@ export PATH=$HOME/opt/pintos:$PATH
 # networking
 # restarting network manager service
 alias connect='sudo service network-manager restart'
+# testing connection
+alias testcon='echo loading...; if ! [ -z "$(nslookup 8.8.8.8)" ]; then echo "OK"; fi'
 
 # echo "the mamas and the papas"
 settings
