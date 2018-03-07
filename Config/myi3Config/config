@@ -106,7 +106,7 @@ set $work uni
 set $info info
 set $X terminals
 set $fun ppp
-set $procrastination lol
+set $procrastination music
 
 # switch to workspace
 bindsym $mod+1 workspace $1

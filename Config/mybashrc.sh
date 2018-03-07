@@ -148,6 +148,7 @@ alias psc='ps xawf -eo pid,user,cgroup,args'
 # p
 alias strat='cd ~/ppp/people/exe && vim STRATEGY.md'
 alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
+export PPPHOME=$HOME/ppp
 
 # helper function for 'p';
 # parses output from find | sort | head
@@ -160,6 +161,11 @@ function cdsnd() {
 # goes to argument dirs, starts from home
 function go() {
   cd
+  goto $@
+}
+
+function po() {
+  cd $PPPHOME
   goto $@
 }
 
@@ -205,6 +211,7 @@ export -f go
 export -f goto
 export -f now
 export -f p
+export -f po
 
 # Documents
 alias haskell='now Documents Corsola Haskell'
