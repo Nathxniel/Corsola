@@ -26,7 +26,3 @@ Havent decided what to do with this, perhaps use it as a code-style checker/appl
 working on a script that converts given interface into wireless access point.
 
 currently provides internet access with no security
-
-## Resume
-
-Contains [CV](./Resume/CV.pdf)

@@ -60,3 +60,7 @@ set rnu
 
 "universal paste"
 set clipboard=unnamedplus
+
+"highlighting 80 characters"
+highlight Overlength ctermbg=red ctermfg=white guibg=#592929
+match Overlength /\%80v.\+/

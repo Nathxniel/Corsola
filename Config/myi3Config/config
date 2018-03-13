@@ -101,7 +101,7 @@ set $5 5
 set $6 6
 set $7 7
 set $8 8
-set $9 9
+set $arts arts
 set $work uni
 set $info info
 set $X terminals
@@ -117,7 +117,7 @@ bindsym $mod+5 workspace $5
 bindsym $mod+6 workspace $6
 bindsym $mod+7 workspace $7
 bindsym $mod+8 workspace $8
-bindsym $mod+9 workspace $9
+bindsym $mod+9 workspace $arts
 bindsym $mod+o workspace $work
 bindsym $mod+p workspace $info
 bindsym $mod+0 workspace $X
@@ -133,7 +133,7 @@ bindsym $mod+Shift+5 move container to workspace $5
 bindsym $mod+Shift+6 move container to workspace $6
 bindsym $mod+Shift+7 move container to workspace $7
 bindsym $mod+Shift+8 move container to workspace $8
-bindsym $mod+Shift+9 move container to workspace $9
+bindsym $mod+Shift+9 move container to workspace $arts
 bindsym $mod+Shift+o move container to workspace $work
 bindsym $mod+Shift+p move container to workspace $info
 bindsym $mod+Shift+0 move container to workspace $X

@@ -240,4 +240,4 @@ settings
 if ! [ -z "$(diff ./myi3Config/config ~/.config/i3/config)" ]; then
   cp ./myi3Config/config ~/.config/i3/config
 fi
-cd /home/nathaniel
+cd
