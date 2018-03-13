@@ -17,8 +17,6 @@ working on a program that can parse Haskell source. I.e.:
   + Identify pragmas and other haskell syntax (TODO)
   + Identify function definitions and functions
 
-Havent decided what to do with this, perhaps use it as a code-style checker/applyer
-
 ## Networking
 
 ### WAPtest.sh
