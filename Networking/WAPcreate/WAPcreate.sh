@@ -274,3 +274,4 @@ dnsmasq -d --conf-file="./conf/dnsmasq.conf" \
 # 9 - fucking around
 #systemctl restart bind9.service
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
