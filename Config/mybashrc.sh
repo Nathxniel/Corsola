@@ -131,7 +131,7 @@ fi
 
 # static aliases
 alias c='clear'
-alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
+alias charge='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
 alias corsola='cd ~/Documents/Corsola/'
 alias settings='corsola && cd Config'
 
@@ -140,7 +140,8 @@ alias editbash='vim ~/Documents/Corsola/Config/mybashrc.sh'
 alias update='. ~/.profile'
 alias editi3='vim ~/Documents/Corsola/Config/myi3Config/config'
 alias editi3bar='vim ~/Documents/Corsola/Config/myi3Config/i3status.conf'
-alias editwebsite='cd ~/web'
+alias editwebsite='cd $PPPHOME/.p/ersonal/web'
+alias log='vim $PPPHOME/people/exe/log'
 
 # listing services
 alias psc='ps xawf -eo pid,user,cgroup,args'
@@ -234,6 +235,8 @@ export PATH=$HOME/opt/pintos:$PATH
 alias connect='sudo service network-manager restart'
 # testing connection
 alias testcon='echo loading...; if ! [ -z "$(nslookup 8.8.8.8)" ]; then echo "OK"; fi'
+# networking usage
+alias netusage='echo rx=download\(recieve\) && vnstati -vs -i wlp3s0 -o NETUSAGE.png'
 
 # echo "the mamas and the papas"
 settings
