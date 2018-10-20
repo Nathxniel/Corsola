@@ -149,7 +149,7 @@ alias psc='ps xawf -eo pid,user,cgroup,args'
 # p
 alias strat='cd ~/ppp/people/exe && vim STRATEGY.md'
 alias notes='cd ~/ppp/people/exe/etc/ && vim notes.md'
-export PPPHOME=$HOME/ppp
+export PPPHOME=$HOME/ppp/generation1/
 
 # helper function for 'p';
 # parses output from find | sort | head
@@ -224,11 +224,8 @@ export PATH=$PATH:~/bin
 export PATH=$HOME/.cabal/bin:$PATH
 # ranger
 export RANGER_LOAD_DEFAULT_RC=FALSE
-# x86_84 cross compiler
-export PATH=$HOME/opt/cross/i386-elf-binutils/bin:$PATH
-export PATH=$HOME/opt/cross/i386-elf-gcc/bin:$PATH
-# pintos
-export PATH=$HOME/opt/pintos:$PATH
+# node and stuff -____-
+export PATH=$PATH:~/.node-v8/bin
 
 # networking
 # restarting network manager service
